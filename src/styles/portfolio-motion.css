@@ -8,6 +8,17 @@
   animation: gallery-frame-in 320ms ease both;
 }
 
+.music-portfolio.is-playing .music-player__cover-frame {
+  animation: music-cover-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes music-cover-breathe {
+  50% {
+    box-shadow: 0 22px 48px rgba(255, 255, 255, 0.085), 0 0 30px rgba(240, 163, 74, 0.24);
+    transform: scale(1.008);
+  }
+}
+
 @keyframes gallery-frame-in {
   from {
     opacity: 0;
@@ -28,6 +39,10 @@
   }
 
   .gallery-stage__image > img {
+    animation: none;
+  }
+
+  .music-portfolio.is-playing .music-player__cover-frame {
     animation: none;
   }
 }

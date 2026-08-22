@@ -2,6 +2,7 @@ import { contactLinks, disciplines, profile } from './content';
 import { initAudioController } from './lib/audio-controller';
 import { initBookingForm } from './lib/booking';
 import { initNavigation } from './lib/navigation';
+import { portfolioHref } from './lib/paths';
 import { initReveal } from './lib/reveal';
 import './styles/tokens.css';
 import './styles/base.css';
@@ -28,9 +29,9 @@ const disciplinesMarkup = disciplines
             <button class="text-link" type="button" data-book-service="${discipline.service}">
               Обсудить проект <span aria-hidden="true">↗</span>
             </button>
-            <button class="text-link text-link--placeholder" type="button" disabled title="Раздел появится на следующем этапе">
-              Портфолио <small>скоро</small>
-            </button>
+            <a class="text-link" href="${portfolioHref(discipline.portfolioRoute)}">
+              Портфолио <span aria-hidden="true">→</span>
+            </a>
           </div>
         </div>
       </article>

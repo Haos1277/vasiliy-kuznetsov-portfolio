@@ -1,3 +1,5 @@
+import type { PortfolioRoute } from './lib/paths';
+
 export type DisciplineId =
   | 'photographer'
   | 'videographer'
@@ -12,7 +14,7 @@ export interface Discipline {
   image: string;
   imageAlt: string;
   service: string;
-  futurePath: string;
+  portfolioRoute: PortfolioRoute;
 }
 
 export const profile = {
@@ -43,7 +45,7 @@ export const disciplines: readonly Discipline[] = [
     image: 'media/photographer.webp',
     imageAlt: 'Василий Кузнецов с фотокамерой на берегу моря',
     service: 'Фотосессия',
-    futurePath: '/photography',
+    portfolioRoute: 'photography',
   },
   {
     id: 'videographer',
@@ -54,7 +56,7 @@ export const disciplines: readonly Discipline[] = [
     image: 'media/videographer.webp',
     imageAlt: 'Василий Кузнецов в режиссёрском кресле среди студийного света',
     service: 'Видеосъёмка',
-    futurePath: '/video',
+    portfolioRoute: 'video',
   },
   {
     id: 'ai-creator',
@@ -65,7 +67,7 @@ export const disciplines: readonly Discipline[] = [
     image: 'media/ai-creator.webp',
     imageAlt: 'Василий Кузнецов и человекоподобный робот работают вместе',
     service: 'AI-проект',
-    futurePath: '/ai',
+    portfolioRoute: 'ai',
   },
   {
     id: 'music',
@@ -76,6 +78,6 @@ export const disciplines: readonly Discipline[] = [
     image: 'media/music.webp',
     imageAlt: 'Портрет DJ_Schmied в окружении абстрактных музыкальных панелей',
     service: 'Музыка',
-    futurePath: '/music',
+    portfolioRoute: 'music',
   },
 ];

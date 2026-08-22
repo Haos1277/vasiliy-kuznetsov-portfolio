@@ -1,11 +1,55 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { buildTelegramUrl, initBookingForm } from '../src/lib/booking';
+import {
+  buildTelegramUrl,
+  initBookingForm,
+  readBookingService,
+} from '../src/lib/booking';
 
 describe('booking', () => {
   afterEach(() => {
     document.body.innerHTML = '';
+    history.replaceState({}, '', '/');
     vi.restoreAllMocks();
+  });
+
+  it('accepts only approved services from the URL', () => {
+    expect(readBookingService('?service=Музыка')).toBe('Музыка');
+    expect(readBookingService('?service=Неизвестно')).toBeNull();
+  });
+
+  it('preselects an approved service only when the form has its option', () => {
+    history.replaceState({}, '', '/?service=Видеосъёмка#booking');
+    document.body.innerHTML = `
+      <section id="booking"><form data-booking-form>
+        <select name="service">
+          <option value="">Выберите услугу</option>
+          <option>Видеосъёмка</option>
+        </select>
+      </form></section>`;
+
+    const cleanup = initBookingForm();
+
+    expect(document.querySelector<HTMLSelectElement>('select')?.value).toBe(
+      'Видеосъёмка',
+    );
+    cleanup();
+  });
+
+  it('does not select an approved service absent from the form options', () => {
+    history.replaceState({}, '', '/?service=Музыка#booking');
+    document.body.innerHTML = `
+      <section id="booking"><form data-booking-form>
+        <select name="service">
+          <option value="">Выберите услугу</option>
+          <option>Видеосъёмка</option>
+        </select>
+      </form></section>`;
+
+    const cleanup = initBookingForm();
+
+    expect(document.querySelector<HTMLSelectElement>('select')?.value).toBe('');
+    cleanup();
   });
 
   it('builds a readable Telegram draft without storing form data', () => {

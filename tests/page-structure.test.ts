@@ -26,4 +26,21 @@ describe('portfolio page structure', () => {
     expect(divider).toBeInstanceOf(HTMLHRElement);
     expect(divider?.nextElementSibling?.classList.contains('disciplines')).toBe(true);
   });
+
+  it('renders enabled portfolio links for every discipline route', () => {
+    const portfolioLinks = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(
+        '.discipline__actions a.text-link',
+      ),
+    ).filter((link) => link.textContent?.includes('Портфолио'));
+
+    expect(portfolioLinks).toHaveLength(4);
+    expect(portfolioLinks.map((link) => link.getAttribute('href'))).toEqual([
+      '/vasiliy-kuznetsov-portfolio/photography/',
+      '/vasiliy-kuznetsov-portfolio/video/',
+      '/vasiliy-kuznetsov-portfolio/ai/',
+      '/vasiliy-kuznetsov-portfolio/music/',
+    ]);
+    expect(portfolioLinks.every((link) => !link.matches(':disabled'))).toBe(true);
+  });
 });

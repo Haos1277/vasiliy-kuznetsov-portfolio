@@ -1,3 +1,5 @@
+import type { BookingService } from '../shared/portfolio-shell';
+
 export interface BookingData {
   name: string;
   service: string;
@@ -6,6 +8,21 @@ export interface BookingData {
 }
 
 const clean = (value: string, fallback: string) => value.trim() || fallback;
+
+const bookingServices = Object.freeze([
+  'Фотосессия',
+  'Видеосъёмка',
+  'AI-проект',
+  'Музыка',
+] as const);
+
+const isBookingService = (value: string): value is BookingService =>
+  bookingServices.some((service) => service === value);
+
+export function readBookingService(search: string): BookingService | null {
+  const service = new URLSearchParams(search).get('service');
+  return service && isBookingService(service) ? service : null;
+}
 
 export function buildTelegramUrl(data: BookingData): string {
   const message = [
@@ -26,6 +43,16 @@ export function initBookingForm(): () => void {
   const serviceButtons = document.querySelectorAll<HTMLButtonElement>(
     '[data-book-service]',
   );
+  const requestedService = readBookingService(window.location.search);
+
+  if (
+    requestedService &&
+    Array.from(serviceSelect?.options ?? []).some(
+      (option) => option.value === requestedService,
+    )
+  ) {
+    serviceSelect!.value = requestedService;
+  }
 
   const onServiceClick = (event: Event) => {
     const button = event.currentTarget as HTMLButtonElement;

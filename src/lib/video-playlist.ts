@@ -86,7 +86,7 @@ export function initVideoPlaylist<Category extends string>(
 
   const render = () => {
     const visibleWorks = filterVideoWorks(works, activeFilter);
-    root.dataset.videoFilter = activeFilter;
+    root.dataset.activeVideoFilter = activeFilter;
     filterButtons.forEach((button) => {
       const active = button.dataset.videoFilter === activeFilter;
       button.classList.toggle('is-active', active);

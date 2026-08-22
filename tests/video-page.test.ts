@@ -34,7 +34,9 @@ describe('videographer page', () => {
     await import('../src/pages/video');
 
     const frame = document.querySelector<HTMLIFrameElement>('[data-video-frame]');
+    const player = document.querySelector<HTMLElement>('[data-video-player]');
     expect(frame?.getAttribute('src')).toBeNull();
+    expect(player?.hidden).toBe(true);
     expect(document.querySelector('[data-video-empty]')?.textContent).toContain(
       'Видеоработы появятся здесь после подготовки материалов.',
     );

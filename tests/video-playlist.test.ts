@@ -53,6 +53,7 @@ const mountVideoFixture = (filters = ['all', 'concert', 'individual']): HTMLElem
     <section data-video-root>
       <div data-video-player>
         <iframe data-video-frame></iframe>
+        <p data-video-watch hidden><a data-video-watch-link></a></p>
         <p data-video-fallback hidden><a data-video-fallback-link></a></p>
       </div>
       <div>${filters
@@ -129,6 +130,20 @@ describe('video playlist controller', () => {
     cleanup();
   });
 
+  it('exposes a validated direct watch link as soon as a work is selected', () => {
+    const root = mountVideoFixture();
+    const cleanup = initVideoPlaylist(root, fixtureWorks);
+
+    root.querySelector<HTMLButtonElement>('[data-video-work="individual-1"]')!.click();
+
+    const watch = root.querySelector<HTMLElement>('[data-video-watch]')!;
+    const link = root.querySelector<HTMLAnchorElement>('[data-video-watch-link]')!;
+    expect(watch.hidden).toBe(false);
+    expect(link.href).toBe('https://www.youtube.com/watch?v=9bZkp7q19f0');
+    expect(root.querySelector<HTMLElement>('[data-video-fallback]')!.hidden).toBe(true);
+    cleanup();
+  });
+
   it('shows a safe readable fallback for a malformed ID without loading or crashing', () => {
     const root = mountVideoFixture();
     const cleanup = initVideoPlaylist(root, malformedWorks);
@@ -145,6 +160,8 @@ describe('video playlist controller', () => {
     expect(fallback.textContent).toContain('Видео недоступно');
     expect(link.hasAttribute('href')).toBe(false);
     expect(link.hidden).toBe(true);
+    expect(root.querySelector<HTMLElement>('[data-video-watch]')!.hidden).toBe(true);
+    expect(root.querySelector<HTMLAnchorElement>('[data-video-watch-link]')!.hasAttribute('href')).toBe(false);
 
     cleanup();
     fallback.hidden = true;
@@ -172,20 +189,36 @@ describe('video playlist controller', () => {
     cleanup();
   });
 
-  it('supports a separate generic AI category and renders a readable empty list', () => {
+  it('hides an empty player and shows it for a non-empty AI fixture', () => {
     const aiRoot = mountVideoFixture(['all', 'ai']);
     const aiCleanup = initVideoPlaylist(aiRoot, aiWorks);
-    aiRoot.querySelector<HTMLButtonElement>('[data-video-filter="ai"]')!.click();
-    expect(aiRoot.querySelectorAll('[data-video-work]')).toHaveLength(1);
-    expect(aiRoot.querySelector('[data-video-empty]')!.hasAttribute('hidden')).toBe(true);
+    expect(aiRoot.querySelector<HTMLElement>('[data-video-player]')!.hidden).toBe(false);
     aiCleanup();
 
     const emptyRoot = mountVideoFixture();
     const emptyCleanup = initVideoPlaylist(emptyRoot, []);
+    expect(emptyRoot.querySelector<HTMLElement>('[data-video-player]')!.hidden).toBe(true);
     expect(emptyRoot.querySelector('[data-video-empty]')!.hasAttribute('hidden')).toBe(false);
     expect(emptyRoot.querySelector('[data-video-empty]')!.textContent).toContain('No videos yet.');
     expect(emptyRoot.querySelector('[data-video-list]')!.textContent).toBe('');
     emptyCleanup();
+  });
+
+  it('stops and unloads a selected iframe through the controller lifecycle API', () => {
+    const root = mountVideoFixture();
+    const controller = initVideoPlaylist(root, fixtureWorks);
+    const frame = root.querySelector<HTMLIFrameElement>('[data-video-frame]')!;
+    Object.assign(root.querySelector<HTMLElement>('[data-video-player]')!, {
+      scrollIntoView: vi.fn(),
+    });
+
+    root.querySelector<HTMLButtonElement>('[data-video-work="concert-1"]')!.click();
+    controller.stop();
+
+    expect(frame.getAttribute('src')).toBeNull();
+    expect(root.querySelector('[data-video-work="concert-1"]')!.getAttribute('aria-pressed')).toBe('false');
+    expect(root.querySelector<HTMLElement>('[data-video-watch]')!.hidden).toBe(true);
+    controller();
   });
 
   it('removes filter, work, and iframe-error listeners on cleanup', () => {

@@ -2,6 +2,7 @@ import type { VideoCategory, VideoWork } from '../data/videos';
 import { isYouTubeId, youtubeEmbedUrl, youtubeWatchUrl } from './youtube';
 
 export type VideoFilter<Category extends string = VideoCategory> = 'all' | Category;
+export type VideoPlaylistController = (() => void) & { stop: () => void };
 
 const playerPermissions =
   'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
@@ -15,14 +16,16 @@ export const filterVideoWorks = <Category extends string>(
 export function initVideoPlaylist<Category extends string>(
   root: HTMLElement,
   works: readonly VideoWork<Category>[],
-): () => void {
+): VideoPlaylistController {
   let activeFilter: VideoFilter<Category> = 'all';
   let activeWorkId: string | undefined;
 
   const frame = root.querySelector<HTMLIFrameElement>('[data-video-frame]');
   const player = root.querySelector<HTMLElement>('[data-video-player]') ?? frame;
+  const filters = root.querySelector<HTMLElement>('[data-video-filters]');
   const list = root.querySelector<HTMLElement>('[data-video-list]');
   const emptyState = root.querySelector<HTMLElement>('[data-video-empty]');
+  const watch = root.querySelector<HTMLElement>('[data-video-watch]');
   const fallback = root.querySelector<HTMLElement>('[data-video-fallback]');
   const filterButtons = Array.from(
     root.querySelectorAll<HTMLButtonElement>('[data-video-filter]'),
@@ -39,8 +42,33 @@ export function initVideoPlaylist<Category extends string>(
     return link;
   };
 
+  const getWatchLink = (): HTMLAnchorElement | null => {
+    if (watch instanceof HTMLAnchorElement) return watch;
+    const existingLink = watch?.querySelector<HTMLAnchorElement>('a');
+    if (existingLink) return existingLink;
+    if (!watch) return null;
+
+    const link = document.createElement('a');
+    watch.append(link);
+    return link;
+  };
+
   const hideFallback = () => {
     fallback?.setAttribute('hidden', '');
+  };
+
+  const hideWatchLink = () => {
+    const link = getWatchLink();
+    link?.removeAttribute('href');
+    watch?.setAttribute('hidden', '');
+  };
+
+  const showWatchLink = (work: VideoWork<Category>) => {
+    const link = getWatchLink();
+    if (!link) return;
+    link.href = youtubeWatchUrl(work.youtubeId);
+    if (!link.textContent?.trim()) link.textContent = 'Открыть видео на YouTube';
+    watch?.removeAttribute('hidden');
   };
 
   const setFallbackMessage = (message: string) => {
@@ -86,7 +114,10 @@ export function initVideoPlaylist<Category extends string>(
 
   const render = () => {
     const visibleWorks = filterVideoWorks(works, activeFilter);
+    const hasWorks = works.length > 0;
     root.dataset.activeVideoFilter = activeFilter;
+    player?.toggleAttribute('hidden', !hasWorks);
+    filters?.toggleAttribute('hidden', !hasWorks);
     filterButtons.forEach((button) => {
       const active = button.dataset.videoFilter === activeFilter;
       button.classList.toggle('is-active', active);
@@ -125,11 +156,13 @@ export function initVideoPlaylist<Category extends string>(
     activeWorkId = work.id;
     if (!isYouTubeId(work.youtubeId)) {
       frame?.removeAttribute('src');
+      hideWatchLink();
       showUnavailableFallback();
       render();
       return;
     }
     hideFallback();
+    showWatchLink(work);
     if (frame) {
       frame.src = youtubeEmbedUrl(work.youtubeId, true);
       frame.title = `Видео: ${work.title}`;
@@ -172,9 +205,21 @@ export function initVideoPlaylist<Category extends string>(
 
   render();
 
-  return () => {
+  const stop = () => {
+    activeWorkId = undefined;
+    frame?.removeAttribute('src');
+    hideWatchLink();
+    hideFallback();
+    render();
+  };
+
+  const cleanup = () => {
+    stop();
     bindings.forEach(([target, event, listener]) => {
       target.removeEventListener(event, listener);
     });
   };
+
+  cleanup.stop = stop;
+  return cleanup;
 }

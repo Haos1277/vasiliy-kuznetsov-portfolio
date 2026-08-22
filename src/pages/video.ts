@@ -20,11 +20,14 @@ const videoPageMarkup = `
         allowfullscreen
         referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
+      <p class="video-player__watch" data-video-watch hidden>
+        <a data-video-watch-link target="_blank" rel="noreferrer">Открыть видео на YouTube</a>
+      </p>
       <p class="video-player__fallback" data-video-fallback hidden aria-live="polite">
         <a data-video-fallback-link target="_blank" rel="noreferrer">Открыть видео на YouTube</a>
       </p>
     </div>
-    <div class="video-portfolio__filters reveal-item" aria-label="Фильтр видеоработ">
+    <div class="video-portfolio__filters reveal-item" data-video-filters aria-label="Фильтр видеоработ">
       <button class="video-filter is-active" type="button" data-video-filter="all" aria-pressed="true">Все работы</button>
       <button class="video-filter" type="button" data-video-filter="concert" aria-pressed="false">Концерты</button>
       <button class="video-filter" type="button" data-video-filter="individual" aria-pressed="false">Индивидуальные съёмки</button>

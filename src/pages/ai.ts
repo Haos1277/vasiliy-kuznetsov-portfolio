@@ -85,6 +85,9 @@ const aiPageMarkup = `
           allowfullscreen
           referrerpolicy="strict-origin-when-cross-origin"
         ></iframe>
+        <p class="video-player__watch" data-video-watch hidden>
+          <a data-video-watch-link target="_blank" rel="noreferrer">Открыть видео на YouTube</a>
+        </p>
         <p class="video-player__fallback" data-video-fallback hidden aria-live="polite">
           <a data-video-fallback-link target="_blank" rel="noreferrer">Открыть видео на YouTube</a>
         </p>
@@ -110,11 +113,14 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = renderPortfolioShell
 });
 
 const root = document.querySelector<HTMLElement>('[data-ai-root]')!;
+const videoPlaylist = initVideoPlaylist(root, aiVideoWorks);
 const cleanups = [
   initPortfolioShell(),
-  initAiModes(root),
+  initAiModes(root, (mode) => {
+    if (mode === 'photos') videoPlaylist.stop();
+  }),
   initGallery(root, [aiPhotoCollection]),
-  initVideoPlaylist(root, aiVideoWorks),
+  videoPlaylist,
 ];
 const cleanup = () => cleanups.forEach((dispose) => dispose());
 

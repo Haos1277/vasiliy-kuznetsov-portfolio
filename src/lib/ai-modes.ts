@@ -3,7 +3,10 @@ export type AiMode = 'photos' | 'video';
 const isAiMode = (value: string | undefined): value is AiMode =>
   value === 'photos' || value === 'video';
 
-export function initAiModes(root: HTMLElement): () => void {
+export function initAiModes(
+  root: HTMLElement,
+  onModeChange?: (mode: AiMode) => void,
+): () => void {
   const buttons = Array.from(
     root.querySelectorAll<HTMLButtonElement>('[data-ai-mode]'),
   );
@@ -20,6 +23,7 @@ export function initAiModes(root: HTMLElement): () => void {
     panels.forEach((panel) => {
       panel.toggleAttribute('hidden', panel.dataset.aiPanel !== mode);
     });
+    onModeChange?.(mode);
   };
 
   const listeners = buttons.flatMap((button) => {

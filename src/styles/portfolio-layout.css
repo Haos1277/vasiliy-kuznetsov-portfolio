@@ -150,6 +150,7 @@
   border: 0;
 }
 
+.video-player__watch,
 .video-player__fallback {
   position: absolute;
   right: 1rem;
@@ -163,6 +164,7 @@
   font-size: 0.78rem;
 }
 
+.video-player__watch a,
 .video-player__fallback a {
   color: var(--cyan-soft);
   text-decoration: underline;

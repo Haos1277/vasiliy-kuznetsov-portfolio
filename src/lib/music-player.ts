@@ -363,7 +363,6 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
 
   return () => {
     if (disposed) return;
-    const wasActive = state.playing;
     disposed = true;
     playRequest += 1;
     cancelAnimation();
@@ -385,6 +384,6 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
     elements.audio.removeEventListener('error', onAudioError);
     elements.audio.removeEventListener('volumechange', onVolumeChange);
     for (const button of trackButtons) button.removeEventListener('click', onTrackClick);
-    if (wasActive) elements.audio.pause();
+    elements.audio.pause();
   };
 }

@@ -330,4 +330,33 @@ describe('music player controller', () => {
     expect(root.classList.contains('is-playing')).toBe(false);
     expect(audio.currentTime).toBe(9);
   });
+
+  it('pauses a newly selected pending track after a stale pause and ignores a second cleanup', async () => {
+    const root = mountMusicFixture();
+    const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
+    const firstPlay = deferred();
+    const secondPlay = deferred();
+    audio.play = vi.fn().mockReturnValueOnce(firstPlay.promise).mockReturnValueOnce(secondPlay.promise);
+    audio.pause = vi.fn();
+    const requestAnimationFrame = vi.fn(() => 12);
+    vi.stubGlobal('requestAnimationFrame', requestAnimationFrame);
+    vi.stubGlobal('cancelAnimationFrame', vi.fn());
+    const cleanup = initMusicPlayer(root, fixtureTracks);
+
+    root.querySelector<HTMLButtonElement>('[data-music-play]')!.click();
+    root.querySelector<HTMLButtonElement>('[data-music-track="track-2"]')!.click();
+    audio.dispatchEvent(new Event('pause'));
+    cleanup();
+    cleanup();
+
+    secondPlay.resolve();
+    await Promise.resolve();
+    audio.dispatchEvent(new Event('play'));
+
+    expect(audio.pause).toHaveBeenCalledOnce();
+    expect(requestAnimationFrame).not.toHaveBeenCalled();
+    expect(root.querySelector('[data-music-title]')?.textContent).toBe('Second track');
+    expect(root.querySelector<HTMLButtonElement>('[data-music-play]')?.getAttribute('aria-pressed')).toBe('false');
+    expect(root.classList.contains('is-playing')).toBe(false);
+  });
 });

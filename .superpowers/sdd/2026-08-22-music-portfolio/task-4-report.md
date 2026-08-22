@@ -81,3 +81,31 @@ BLOCKED: none.
 `Fix music player completion and cleanup lifecycle` — scoped Task 4 Fix Round 1 commit.
 
 `progress.md` remains unchanged.
+
+## Fix Round 2
+
+### Finding and root cause
+
+- **Important — cleanup trusted a stale mirror of native playback:** during a track switch, an old queued `pause` can arrive after the new source has been loaded and its `play()` request is pending. That event sets controller `state.playing` to false even though the native audio element can still start. Cleanup used that stale state to decide whether to call `audio.pause()`, allowing the pending native playback to escape teardown.
+
+### Fix and regression coverage
+
+- Cleanup now pauses the native audio element unconditionally after disposal, generation invalidation, animation cancellation, waveform cleanup, and listener removal. `HTMLMediaElement.pause()` is safe and idempotent, so native state—not the controller mirror—governs the final stop.
+- The regression starts one pending play, switches to a second pending track, delivers a stale pause, runs cleanup twice, then resolves and emits the second play. It verifies one native pause call, no new RAF, no active UI state, and a preserved selected-track label.
+
+### Verification
+
+| Command / check | Result |
+| --- | --- |
+| `npm test -- tests/music-player.test.ts` (RED) | Failed: cleanup did not pause the newly selected pending native track after stale pause. |
+| `npm test -- tests/music-player.test.ts` (GREEN) | Passed: 1 file, 12 tests. |
+| `npm test -- tests/playlist-state.test.ts tests/waveform.test.ts tests/music-player.test.ts` | Passed: 3 files, 31 tests. |
+| `npm test` | Passed: 22 files, 86 tests. |
+| `npm run build` | Passed: TypeScript check and Vite production build. |
+| `git diff --check` | Passed with no whitespace errors. |
+
+### Commit
+
+`Always pause native audio during music player cleanup` — scoped Task 4 Fix Round 2 commit.
+
+`progress.md` remains unchanged.

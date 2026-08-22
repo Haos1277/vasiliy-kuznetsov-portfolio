@@ -50,6 +50,7 @@ const mountMusicFixture = (tracks: readonly MusicTrack[] = fixtureTracks): HTMLE
     ${tracks.map((track) => `<button data-music-track="${track.id}">${track.title}</button>`).join('')}
   `;
   document.body.append(root);
+  root.querySelector<HTMLAudioElement>('[data-music-audio]')!.pause = vi.fn();
   const canvas = root.querySelector<HTMLCanvasElement>('[data-music-waveform]')!;
   Object.defineProperties(canvas, {
     clientWidth: { configurable: true, value: 200 },
@@ -62,6 +63,14 @@ const mountMusicFixture = (tracks: readonly MusicTrack[] = fixtureTracks): HTMLE
 
 const setDuration = (audio: HTMLAudioElement, duration: number): void => {
   Object.defineProperty(audio, 'duration', { configurable: true, value: duration });
+};
+
+const deferred = (): { promise: Promise<void>; resolve: () => void } => {
+  let resolve = (): void => undefined;
+  const promise = new Promise<void>((complete) => {
+    resolve = complete;
+  });
+  return { promise, resolve };
 };
 
 afterEach(() => {
@@ -188,6 +197,72 @@ describe('music player controller', () => {
     cleanup();
   });
 
+  it('advances when the browser dispatches pause before the ended event', () => {
+    const root = mountMusicFixture();
+    const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
+    audio.play = vi.fn().mockResolvedValue(undefined);
+    const cleanup = initMusicPlayer(root, fixtureTracks);
+
+    root.querySelector<HTMLButtonElement>('[data-music-play]')!.click();
+    audio.dispatchEvent(new Event('pause'));
+    audio.dispatchEvent(new Event('ended'));
+
+    expect(audio.src).toContain('/media/track-2.mp3');
+    expect(audio.play).toHaveBeenCalledTimes(2);
+    cleanup();
+  });
+
+  it('restarts the current track when pause precedes ended in repeat-one mode', () => {
+    const root = mountMusicFixture();
+    const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
+    audio.play = vi.fn().mockResolvedValue(undefined);
+    const cleanup = initMusicPlayer(root, fixtureTracks);
+
+    root.querySelector<HTMLButtonElement>('[data-music-track="track-2"]')!.click();
+    root.querySelector<HTMLButtonElement>('[data-music-repeat]')!.click();
+    root.querySelector<HTMLButtonElement>('[data-music-repeat]')!.click();
+    audio.currentTime = 123;
+    audio.dispatchEvent(new Event('pause'));
+    audio.dispatchEvent(new Event('ended'));
+
+    expect(audio.src).toContain('/media/track-2.mp3');
+    expect(audio.currentTime).toBe(0);
+    expect(audio.play).toHaveBeenCalledTimes(2);
+    cleanup();
+  });
+
+  it('wraps to the first track when pause precedes ended in repeat-all mode', () => {
+    const root = mountMusicFixture();
+    const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
+    audio.play = vi.fn().mockResolvedValue(undefined);
+    const cleanup = initMusicPlayer(root, fixtureTracks);
+
+    root.querySelector<HTMLButtonElement>('[data-music-track="track-3"]')!.click();
+    root.querySelector<HTMLButtonElement>('[data-music-repeat]')!.click();
+    audio.dispatchEvent(new Event('pause'));
+    audio.dispatchEvent(new Event('ended'));
+
+    expect(audio.src).toContain('/media/track-1.mp3');
+    expect(audio.play).toHaveBeenCalledTimes(2);
+    cleanup();
+  });
+
+  it('remains stopped at the non-repeating end when pause precedes ended', () => {
+    const root = mountMusicFixture();
+    const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
+    audio.play = vi.fn().mockResolvedValue(undefined);
+    const cleanup = initMusicPlayer(root, fixtureTracks);
+
+    root.querySelector<HTMLButtonElement>('[data-music-track="track-3"]')!.click();
+    audio.dispatchEvent(new Event('pause'));
+    audio.dispatchEvent(new Event('ended'));
+
+    expect(audio.src).toContain('/media/track-3.mp3');
+    expect(audio.play).toHaveBeenCalledOnce();
+    expect(root.querySelector<HTMLButtonElement>('[data-music-play]')?.getAttribute('aria-pressed')).toBe('false');
+    cleanup();
+  });
+
   it('stops the media element when next reaches the non-repeating playlist boundary', () => {
     const root = mountMusicFixture();
     const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
@@ -217,5 +292,42 @@ describe('music player controller', () => {
     root.querySelector<HTMLButtonElement>('[data-music-play]')!.click();
     root.querySelector<HTMLButtonElement>('[data-music-next]')!.click();
     expect(audio.play).not.toHaveBeenCalled();
+  });
+
+  it('pauses active playback and leaves a resolved pending play unable to revive detached UI', async () => {
+    const root = mountMusicFixture();
+    const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
+    const pendingPlay = deferred();
+    audio.play = vi.fn(() => pendingPlay.promise);
+    audio.pause = vi.fn();
+    const requestAnimationFrame = vi.fn(() => 11);
+    const cancelAnimationFrame = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', requestAnimationFrame);
+    vi.stubGlobal('cancelAnimationFrame', cancelAnimationFrame);
+    setDuration(audio, 240);
+    const cleanup = initMusicPlayer(root, fixtureTracks);
+    const waveform = root.querySelector<HTMLCanvasElement>('[data-music-waveform]')!;
+
+    root.querySelector<HTMLButtonElement>('[data-music-play]')!.click();
+    audio.dispatchEvent(new Event('play'));
+    expect(requestAnimationFrame).toHaveBeenCalledOnce();
+
+    cleanup();
+    pendingPlay.resolve();
+    await Promise.resolve();
+    audio.dispatchEvent(new Event('play'));
+    audio.currentTime = 9;
+    audio.dispatchEvent(new Event('pause'));
+    const pointer = new MouseEvent('pointerdown', { bubbles: true, clientX: 100 });
+    Object.defineProperty(pointer, 'pointerId', { value: 8 });
+    waveform.dispatchEvent(pointer);
+
+    expect(audio.pause).toHaveBeenCalledOnce();
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(11);
+    expect(requestAnimationFrame).toHaveBeenCalledOnce();
+    expect(root.querySelector<HTMLButtonElement>('[data-music-play]')?.getAttribute('aria-pressed')).toBe('false');
+    expect(root.querySelector('[data-music-current]')?.textContent).toBe('00:00');
+    expect(root.classList.contains('is-playing')).toBe(false);
+    expect(audio.currentTime).toBe(9);
   });
 });

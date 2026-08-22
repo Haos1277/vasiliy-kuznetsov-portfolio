@@ -119,6 +119,7 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
   let errorMessage = '';
   let animationFrame: number | undefined;
   let playRequest = 0;
+  let disposed = false;
 
   const selectedTrack = (): MusicTrack | undefined => tracks[state.index];
   const mediaDuration = (): number =>
@@ -213,10 +214,10 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
     const request = ++playRequest;
     try {
       void Promise.resolve(elements.audio.play()).catch(() => {
-        if (request === playRequest) stopWithError();
+        if (!disposed && request === playRequest) stopWithError();
       });
     } catch {
-      if (request === playRequest) stopWithError();
+      if (!disposed && request === playRequest) stopWithError();
     }
   };
 
@@ -322,7 +323,7 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
   };
   const onEnded = (): void => {
     const previousIndex = state.index;
-    state = nextTrack(state, tracks.length, Math.random);
+    state = nextTrack({ ...state, playing: true }, tracks.length, Math.random);
     if (!state.playing) {
       cancelAnimation();
       render();
@@ -361,8 +362,13 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
   render();
 
   return () => {
+    if (disposed) return;
+    const wasActive = state.playing;
+    disposed = true;
     playRequest += 1;
     cancelAnimation();
+    state = { ...state, playing: false };
+    render();
     cleanupWaveform();
     elements.play.removeEventListener('click', onPlayClick);
     elements.previous.removeEventListener('click', onPreviousClick);
@@ -379,5 +385,6 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
     elements.audio.removeEventListener('error', onAudioError);
     elements.audio.removeEventListener('volumechange', onVolumeChange);
     for (const button of trackButtons) button.removeEventListener('click', onTrackClick);
+    if (wasActive) elements.audio.pause();
   };
 }

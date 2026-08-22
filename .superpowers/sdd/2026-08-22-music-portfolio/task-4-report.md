@@ -50,3 +50,34 @@
 DONE: Task 4 controller, TDD evidence, focused/full tests, production build, diff check, and scoped commit are complete.
 
 BLOCKED: none.
+
+## Fix Round 1
+
+### Findings and root cause
+
+- **Critical — natural completion event ordering:** browsers can dispatch `pause` before `ended`. The pause handler correctly reflected the media's stopped state, but `onEnded()` then passed that `playing: false` state into `nextTrack()`. The transition therefore stopped instead of advancing, wrapping, or restarting for every non-terminal repeat mode.
+- **Important — incomplete cleanup lifecycle:** cleanup invalidated promise tokens and removed listeners, but it neither marked the controller disposed nor paused media that was active or still waiting for `play()` to settle. A detached player could therefore continue emitting audio, while its last rendered UI remained active.
+
+### Fix and regression coverage
+
+- `ended` now derives its transition from an event-specific `playing: true` intent. This preserves the completion semantics used by `nextTrack()` while still allowing ordinary pause actions to stop the player.
+- Cleanup is idempotent, marks the controller disposed, invalidates pending play requests, cancels the one RAF, renders a stopped state, releases waveform bindings, removes every listener, and pauses active or pending media only after listeners are removed.
+- Regression tests dispatch `pause` then `ended` for normal advance, repeat-one restart, repeat-all wrap, and terminal repeat-off behavior.
+- The cleanup regression holds `play()` pending, starts an animation frame, cleans up, resolves the pending promise, and dispatches late play/pause/waveform events. It verifies no UI, seek value, or RAF can revive and that active media is paused.
+
+### Verification
+
+| Command / check | Result |
+| --- | --- |
+| `npm test -- tests/music-player.test.ts` (RED) | Failed: four regressions reproduced (advance, repeat-one, repeat-all, cleanup pause). |
+| `npm test -- tests/music-player.test.ts` (GREEN) | Passed: 1 file, 11 tests. |
+| `npm test -- tests/playlist-state.test.ts tests/waveform.test.ts tests/music-player.test.ts` | Passed: 3 files, 30 tests. |
+| `npm test` | Passed: 22 files, 85 tests. |
+| `npm run build` | Passed: TypeScript check and Vite production build. |
+| `git diff --check` | Passed with no whitespace errors. |
+
+### Commit
+
+`Fix music player completion and cleanup lifecycle` — scoped Task 4 Fix Round 1 commit.
+
+`progress.md` remains unchanged.

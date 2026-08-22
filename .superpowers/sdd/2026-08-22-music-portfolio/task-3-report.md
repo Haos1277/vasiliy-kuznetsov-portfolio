@@ -47,3 +47,33 @@
 DONE: Task 3 waveform utilities, TDD evidence, focused/full tests, production build, diff check, and scoped commit are complete.
 
 BLOCKED: none.
+
+## Fix Round 1
+
+### Findings and root cause
+
+- **Important — dense peak clipping:** the fixed `3.5px` gap plus a `1px` minimum bar width could require more than the logical canvas width for 192 peaks on narrow canvases. The final bars were therefore drawn outside the visible waveform.
+- **Minor — stale empty waveform:** the early return for an empty peak array occurred before backing-store reset and `clearRect`, leaving the previously drawn waveform visible.
+
+### Fix and regression coverage
+
+- Gap size now scales down as needed from the preferred `3.5px`, while bar width is derived from the remaining logical width. A final-position cap avoids floating-point overflow at the right edge.
+- The dense-geometry regression draws all 192 bars at `320px`, `160px`, and `1000px`, then asserts every `x + width` remains inside the logical canvas.
+- Empty peaks now resize, transform, and clear a non-zero high-DPI canvas before returning; the regression verifies the backing size and `clearRect` call with no bars drawn.
+
+### Verification
+
+| Command / check | Result |
+| --- | --- |
+| `npm test -- tests/waveform.test.ts` (RED) | Failed for both reviewed defects: clipped dense geometry and missing empty-canvas clear. |
+| `npm test -- tests/waveform.test.ts` (GREEN) | Passed: 1 file, 7 tests. |
+| `npm test -- tests/playlist-state.test.ts tests/waveform.test.ts` | Passed: 2 files, 19 tests. |
+| `npm test` | Passed: 21 files, 74 tests. |
+| `npm run build` | Passed: TypeScript check and Vite production build. |
+| `git diff --check` | Passed with no whitespace errors. |
+
+### Commit
+
+`Fix waveform dense peak geometry` — scoped Fix Round 1 commit.
+
+`progress.md` remains unchanged.

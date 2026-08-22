@@ -23,7 +23,7 @@ export function drawWaveform(
   progress: number,
 ): void {
   const { clientWidth: width, clientHeight: height } = canvas;
-  if (width <= 0 || height <= 0 || peaks.length === 0) return;
+  if (width <= 0 || height <= 0) return;
 
   const context = canvas.getContext('2d');
   if (!context) return;
@@ -33,16 +33,18 @@ export function drawWaveform(
   canvas.height = Math.round(height * pixelRatio);
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   context.clearRect(0, 0, width, height);
+  if (peaks.length === 0) return;
 
-  const totalGap = barGap * (peaks.length - 1);
-  const barWidth = Math.max(1, (width - totalGap) / peaks.length);
+  const gap = Math.min(barGap, width / (peaks.length * 4));
+  const totalGap = gap * (peaks.length - 1);
+  const barWidth = (width - totalGap) / peaks.length;
   const completeBars = Math.round(peaks.length * clamp(progress));
   const maximumBarHeight = Math.max(minimumBarHeight, height * maximumBarHeightRatio);
 
   peaks.forEach((peak, index) => {
     const normalizedPeak = Number.isFinite(peak) ? clamp(peak) : 0;
     const barHeight = minimumBarHeight + (maximumBarHeight - minimumBarHeight) * normalizedPeak;
-    const x = index * (barWidth + barGap);
+    const x = Math.min(width - barWidth, index * (barWidth + gap));
     const y = (height - barHeight) / 2;
 
     context.fillStyle = index < completeBars ? amber : paper;

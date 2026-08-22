@@ -71,7 +71,32 @@ describe('waveform utilities', () => {
     Object.defineProperty(window, 'devicePixelRatio', { configurable: true, value: originalRatio });
   });
 
-  it('does not draw or throw for empty peaks or a zero-size canvas', () => {
+  it('keeps every dense waveform bar within the logical canvas width', () => {
+    for (const width of [320, 160, 1000]) {
+      const canvas = document.createElement('canvas');
+      Object.defineProperties(canvas, {
+        clientWidth: { value: width },
+        clientHeight: { value: 40 },
+      });
+      const fills: Array<{ x: number; width: number }> = [];
+      const context = {
+        clearRect: vi.fn(),
+        fillRect: vi.fn((x: number, _y: number, barWidth: number) => {
+          fills.push({ x, width: barWidth });
+        }),
+        setTransform: vi.fn(),
+        fillStyle: '',
+      } as unknown as CanvasRenderingContext2D;
+      vi.spyOn(canvas, 'getContext').mockReturnValue(context);
+
+      drawWaveform(canvas, Array.from({ length: 192 }, () => 0.5), 0);
+
+      expect(fills).toHaveLength(192);
+      expect(fills.every(({ x, width: barWidth }) => x >= 0 && x + barWidth <= width)).toBe(true);
+    }
+  });
+
+  it('does not draw or throw for a zero-size canvas', () => {
     const canvas = document.createElement('canvas');
     Object.defineProperties(canvas, {
       clientWidth: { configurable: true, value: 0 },
@@ -81,13 +106,33 @@ describe('waveform utilities', () => {
 
     expect(() => drawWaveform(canvas, [1], 0.5)).not.toThrow();
     expect(getContext).not.toHaveBeenCalled();
+  });
 
+  it('resets and clears a non-zero canvas when waveform peaks are empty', () => {
+    const canvas = document.createElement('canvas');
     Object.defineProperties(canvas, {
-      clientWidth: { configurable: true, value: 100 },
-      clientHeight: { configurable: true, value: 40 },
+      clientWidth: { value: 100 },
+      clientHeight: { value: 40 },
     });
+    const context = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      setTransform: vi.fn(),
+      fillStyle: '',
+    } as unknown as CanvasRenderingContext2D;
+    vi.spyOn(canvas, 'getContext').mockReturnValue(context);
+    const originalRatio = window.devicePixelRatio;
+    Object.defineProperty(window, 'devicePixelRatio', { configurable: true, value: 2 });
+
     expect(() => drawWaveform(canvas, [], 0.5)).not.toThrow();
-    expect(getContext).not.toHaveBeenCalled();
+
+    expect(canvas.width).toBe(200);
+    expect(canvas.height).toBe(80);
+    expect(context.setTransform).toHaveBeenCalledWith(2, 0, 0, 2, 0, 0);
+    expect(context.clearRect).toHaveBeenCalledWith(0, 0, 100, 40);
+    expect(context.fillRect).not.toHaveBeenCalled();
+
+    Object.defineProperty(window, 'devicePixelRatio', { configurable: true, value: originalRatio });
   });
 
   it('seeks while its active pointer is captured and releases it on up or cancel', () => {

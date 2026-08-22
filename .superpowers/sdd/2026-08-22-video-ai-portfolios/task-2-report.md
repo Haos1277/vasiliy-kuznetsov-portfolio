@@ -45,3 +45,31 @@ The controller works with both videographer categories and an independent `ai` c
 DONE: Task 2 controller, tests, production build, diff checks, scoped commit, and report are complete.
 
 BLOCKED: none.
+
+## Fix Round 1
+
+### Finding
+
+An invalid or missing `youtubeId` reached `youtubeEmbedUrl()` from the work-click handler. That helper correctly throws for invalid IDs, but the controller did not handle the failure. Its iframe-error fallback had the same issue because it called `youtubeWatchUrl()` unconditionally.
+
+### Root cause
+
+The controller trusted the typed `VideoWork` shape at the DOM boundary and validated no ID before either throwing URL helper. A malformed runtime entry therefore produced an uncaught click error instead of a readable unavailable state.
+
+### Files
+
+- `src/lib/video-playlist.ts`
+- `tests/video-playlist.test.ts`
+- `.superpowers/sdd/2026-08-22-video-ai-portfolios/task-2-report.md`
+
+### Tests
+
+- Added a regression that selects a valid work, then a malformed entry. It confirms the existing iframe source is removed, the fallback is visible and readable, the nested link has no `href` and is hidden, and the stale work listener is inert after cleanup.
+- `npm test -- tests/youtube.test.ts tests/video-playlist.test.ts` — passed: 2 files, 11 tests.
+- `npm test` — passed: 13 files, 43 tests.
+- `npm run build` — passed.
+- `git diff --check` — passed.
+
+### Commit
+
+`Handle invalid YouTube playlist entries` — scoped Fix Round 1 commit.

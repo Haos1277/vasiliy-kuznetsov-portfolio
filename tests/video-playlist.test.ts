@@ -38,6 +38,16 @@ const aiWorks = [
   },
 ] as const satisfies readonly VideoWork<'ai'>[];
 
+const malformedWorks = [
+  fixtureWorks[0],
+  {
+    id: 'broken-1',
+    youtubeId: 'not a video id',
+    title: 'Unavailable video',
+    category: 'concert',
+  },
+] as const satisfies readonly VideoWork<'concert'>[];
+
 const mountVideoFixture = (filters = ['all', 'concert', 'individual']): HTMLElement => {
   document.body.innerHTML = `
     <section data-video-root>
@@ -117,6 +127,30 @@ describe('video playlist controller', () => {
     expect(fallback.hidden).toBe(false);
     expect(link.href).toBe('https://www.youtube.com/watch?v=9bZkp7q19f0');
     cleanup();
+  });
+
+  it('shows a safe readable fallback for a malformed ID without loading or crashing', () => {
+    const root = mountVideoFixture();
+    const cleanup = initVideoPlaylist(root, malformedWorks);
+    const frame = root.querySelector<HTMLIFrameElement>('[data-video-frame]')!;
+    const fallback = root.querySelector<HTMLElement>('[data-video-fallback]')!;
+    const link = root.querySelector<HTMLAnchorElement>('[data-video-fallback-link]')!;
+
+    root.querySelector<HTMLButtonElement>('[data-video-work="concert-1"]')!.click();
+    expect(frame.getAttribute('src')).not.toBeNull();
+    root.querySelector<HTMLButtonElement>('[data-video-work="broken-1"]')!.click();
+
+    expect(frame.getAttribute('src')).toBeNull();
+    expect(fallback.hidden).toBe(false);
+    expect(fallback.textContent).toContain('Видео недоступно');
+    expect(link.hasAttribute('href')).toBe(false);
+    expect(link.hidden).toBe(true);
+
+    cleanup();
+    fallback.hidden = true;
+    root.querySelector<HTMLButtonElement>('[data-video-work="broken-1"]')!.click();
+    expect(fallback.hidden).toBe(true);
+    expect(frame.getAttribute('src')).toBeNull();
   });
 
   it('scrolls to the player only for a mobile work selection', () => {

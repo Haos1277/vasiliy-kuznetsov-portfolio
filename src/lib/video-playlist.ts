@@ -1,5 +1,5 @@
 import type { VideoCategory, VideoWork } from '../data/videos';
-import { youtubeEmbedUrl, youtubeWatchUrl } from './youtube';
+import { isYouTubeId, youtubeEmbedUrl, youtubeWatchUrl } from './youtube';
 
 export type VideoFilter<Category extends string = VideoCategory> = 'all' | Category;
 
@@ -43,11 +43,42 @@ export function initVideoPlaylist<Category extends string>(
     fallback?.setAttribute('hidden', '');
   };
 
+  const setFallbackMessage = (message: string) => {
+    if (!fallback) return;
+    let messageElement = fallback.querySelector<HTMLElement>(
+      '[data-video-fallback-message]',
+    );
+    if (!messageElement) {
+      messageElement = document.createElement('span');
+      messageElement.dataset.videoFallbackMessage = '';
+      fallback.prepend(messageElement);
+    }
+    messageElement.textContent = message;
+  };
+
+  const showUnavailableFallback = () => {
+    const link = getFallbackLink();
+    if (link) {
+      link.removeAttribute('href');
+      link.setAttribute('aria-disabled', 'true');
+      if (link !== fallback) link.hidden = true;
+    }
+    setFallbackMessage('Видео недоступно. Попробуйте позже.');
+    fallback?.removeAttribute('hidden');
+  };
+
   const showFallback = (work: VideoWork<Category>) => {
+    if (!isYouTubeId(work.youtubeId)) {
+      showUnavailableFallback();
+      return;
+    }
     const link = getFallbackLink();
     if (!link) return;
     link.href = youtubeWatchUrl(work.youtubeId);
+    link.hidden = false;
+    link.removeAttribute('aria-disabled');
     if (!link.textContent?.trim()) link.textContent = 'Открыть видео на YouTube';
+    setFallbackMessage('Не удалось загрузить видео. ');
     fallback?.removeAttribute('hidden');
   };
 
@@ -92,6 +123,12 @@ export function initVideoPlaylist<Category extends string>(
 
   const selectWork = (work: VideoWork<Category>) => {
     activeWorkId = work.id;
+    if (!isYouTubeId(work.youtubeId)) {
+      frame?.removeAttribute('src');
+      showUnavailableFallback();
+      render();
+      return;
+    }
     hideFallback();
     if (frame) {
       frame.src = youtubeEmbedUrl(work.youtubeId, true);

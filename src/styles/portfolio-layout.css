@@ -290,6 +290,13 @@
   }
 
   .gallery-stage__frame {
-    min-height: min(126vw, 600px);
+    width: 100%;
+    min-height: 0;
+  }
+
+  .ai-mode-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
   }
 }

@@ -11,6 +11,7 @@ describe('booking', () => {
     document.body.innerHTML = '';
     history.replaceState({}, '', '/');
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('accepts only approved services from the URL', () => {
@@ -33,6 +34,73 @@ describe('booking', () => {
     expect(document.querySelector<HTMLSelectElement>('select')?.value).toBe(
       'Видеосъёмка',
     );
+    cleanup();
+  });
+
+  it('preselects and scrolls to booking after a valid service return link', () => {
+    history.replaceState({}, '', '/?service=Видеосъёмка#booking');
+    document.body.innerHTML = `
+      <section id="booking"><form data-booking-form>
+        <select name="service">
+          <option value="">Выберите услугу</option>
+          <option>Видеосъёмка</option>
+        </select>
+      </form></section>`;
+    const booking = document.querySelector<HTMLElement>('#booking')!;
+    booking.scrollIntoView = vi.fn();
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: false }));
+    const animationFrame = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', animationFrame);
+
+    const cleanup = initBookingForm();
+
+    expect(document.querySelector<HTMLSelectElement>('select')?.value).toBe(
+      'Видеосъёмка',
+    );
+    expect(booking.scrollIntoView).not.toHaveBeenCalled();
+    expect(animationFrame).toHaveBeenCalledTimes(1);
+    animationFrame.mock.calls[0][0](0);
+    expect(booking.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+    cleanup();
+  });
+
+  it('does not scroll for an invalid service or another fragment', () => {
+    history.replaceState({}, '', '/?service=Неизвестно#booking');
+    document.body.innerHTML = `
+      <section id="booking"><form data-booking-form>
+        <select name="service"><option>Видеосъёмка</option></select>
+      </form></section>`;
+    const booking = document.querySelector<HTMLElement>('#booking')!;
+    booking.scrollIntoView = vi.fn();
+
+    const cleanup = initBookingForm();
+
+    expect(booking.scrollIntoView).not.toHaveBeenCalled();
+    cleanup();
+
+    history.replaceState({}, '', '/?service=Видеосъёмка#contacts');
+    const otherHashCleanup = initBookingForm();
+
+    expect(booking.scrollIntoView).not.toHaveBeenCalled();
+    otherHashCleanup();
+  });
+
+  it('uses an immediate booking scroll when reduced motion is requested', () => {
+    history.replaceState({}, '', '/?service=Фотосессия#booking');
+    document.body.innerHTML = `
+      <section id="booking"><form data-booking-form>
+        <select name="service"><option>Фотосессия</option></select>
+      </form></section>`;
+    const booking = document.querySelector<HTMLElement>('#booking')!;
+    booking.scrollIntoView = vi.fn();
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }));
+    const animationFrame = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', animationFrame);
+
+    const cleanup = initBookingForm();
+
+    animationFrame.mock.calls[0][0](0);
+    expect(booking.scrollIntoView).toHaveBeenCalledWith({ behavior: 'auto' });
     cleanup();
   });
 

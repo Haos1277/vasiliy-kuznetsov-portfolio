@@ -140,6 +140,27 @@ describe('gallery DOM controller', () => {
     expect(capture).toHaveBeenCalledTimes(2);
   });
 
+  it('releases an active pointer during cleanup and ignores later pointer events', () => {
+    const root = mountGalleryFixture();
+    const cleanup = initGallery(root, fixtureCategories);
+    const stage = root.querySelector<HTMLElement>('[data-gallery-open]')!;
+    const capture = vi.fn();
+    const release = vi.fn();
+    Object.assign(stage, {
+      setPointerCapture: capture,
+      releasePointerCapture: release,
+    });
+
+    stage.dispatchEvent(pointerEvent('pointerdown', 120, 24));
+    cleanup();
+    stage.dispatchEvent(pointerEvent('pointerup', 60, 24));
+    stage.dispatchEvent(pointerEvent('pointerdown', 120, 25));
+
+    expect(capture).toHaveBeenCalledWith(24);
+    expect(release).toHaveBeenCalledWith(24);
+    expect(capture).toHaveBeenCalledTimes(1);
+  });
+
   it('opens an accessible lightbox, returns focus on Escape, and removes listeners on cleanup', () => {
     const root = mountGalleryFixture();
     const cleanup = initGallery(root, fixtureCategories);

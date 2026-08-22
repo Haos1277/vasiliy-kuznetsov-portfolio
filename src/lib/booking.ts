@@ -44,6 +44,14 @@ export function initBookingForm(): () => void {
     '[data-book-service]',
   );
   const requestedService = readBookingService(window.location.search);
+  let initialScrollFrame: number | undefined;
+
+  const scrollToBooking = () => {
+    const reducedMotion = window.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    booking?.scrollIntoView?.({ behavior: reducedMotion ? 'auto' : 'smooth' });
+  };
 
   if (
     requestedService &&
@@ -52,6 +60,17 @@ export function initBookingForm(): () => void {
     )
   ) {
     serviceSelect!.value = requestedService;
+  }
+
+  if (requestedService && window.location.hash === '#booking') {
+    if (window.requestAnimationFrame) {
+      initialScrollFrame = window.requestAnimationFrame(() => {
+        initialScrollFrame = undefined;
+        scrollToBooking();
+      });
+    } else {
+      scrollToBooking();
+    }
   }
 
   const onServiceClick = (event: Event) => {
@@ -79,6 +98,9 @@ export function initBookingForm(): () => void {
   form?.addEventListener('submit', onSubmit);
 
   return () => {
+    if (initialScrollFrame !== undefined) {
+      window.cancelAnimationFrame?.(initialScrollFrame);
+    }
     serviceButtons.forEach((button) =>
       button.removeEventListener('click', onServiceClick),
     );

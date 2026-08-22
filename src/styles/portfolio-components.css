@@ -592,7 +592,7 @@
   }
 
   .ai-mode-card {
-    min-height: 220px;
+    min-height: 0;
     padding: 1rem;
   }
 

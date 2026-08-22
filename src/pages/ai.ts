@@ -1,4 +1,4 @@
-import { aiPhotoCollection } from '../data/ai';
+import { aiModeCardImages, aiPhotoCollection } from '../data/ai';
 import { aiVideoWorks } from '../data/videos';
 import { initGallery } from '../lib/gallery';
 import { initAiModes } from '../lib/ai-modes';
@@ -23,7 +23,7 @@ const aiPageMarkup = `
         aria-controls="ai-photos-panel"
         aria-pressed="true"
       >
-        <span class="ai-mode-card__art" aria-hidden="true"><span></span></span>
+        <img class="ai-mode-card__image" src="${aiModeCardImages.photos}" alt="" width="1120" height="1400" />
         <span class="ai-mode-card__eyebrow">Формат 01</span>
         <span class="ai-mode-card__title">AI-фотосессии</span>
         <span class="ai-mode-card__detail">Новые образы и визуальные миры</span>
@@ -36,7 +36,7 @@ const aiPageMarkup = `
         aria-controls="ai-video-panel"
         aria-pressed="false"
       >
-        <span class="ai-mode-card__art" aria-hidden="true"><span></span></span>
+        <img class="ai-mode-card__image" src="${aiModeCardImages.video}" alt="" width="1120" height="1400" />
         <span class="ai-mode-card__eyebrow">Формат 02</span>
         <span class="ai-mode-card__title">Видео и анимация</span>
         <span class="ai-mode-card__detail">Движение для невозможных кадров</span>

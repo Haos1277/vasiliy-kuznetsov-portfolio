@@ -20,6 +20,12 @@ describe('AI creator page', () => {
     ).toEqual(['AI-фотосессии', 'Видео и анимация']);
     expect(document.querySelector('[data-ai-panel="photos"]')?.hasAttribute('hidden')).toBe(false);
     expect(document.querySelector('[data-ai-panel="video"]')?.hasAttribute('hidden')).toBe(true);
+    expect(
+      document.querySelector<HTMLImageElement>('[data-ai-mode="photos"] img')?.getAttribute('src'),
+    ).toBe('/vasiliy-kuznetsov-portfolio/media/ai/cards/photos.webp');
+    expect(
+      document.querySelector<HTMLImageElement>('[data-ai-mode="video"] img')?.getAttribute('src'),
+    ).toBe('/vasiliy-kuznetsov-portfolio/media/ai/cards/video.webp');
     expect(document.querySelector('[data-gallery-empty]')?.textContent).toContain(
       'Фотографии этой категории появятся здесь после подготовки материалов.',
     );

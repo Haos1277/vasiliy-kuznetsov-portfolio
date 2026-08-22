@@ -3,6 +3,6 @@ dist/
 work/
 outputs/
 .vite/
+.worktrees/
 .DS_Store
 *.log
-

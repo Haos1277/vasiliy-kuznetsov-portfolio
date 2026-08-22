@@ -51,6 +51,12 @@ const mountGalleryFixture = (includeItems = true): HTMLElement => {
   return document.querySelector<HTMLElement>('[data-gallery-root]')!;
 };
 
+const pointerEvent = (type: string, clientX: number, pointerId: number): PointerEvent => {
+  const event = new MouseEvent(type, { bubbles: true, clientX });
+  Object.defineProperty(event, 'pointerId', { value: pointerId });
+  return event as PointerEvent;
+};
+
 afterEach(() => {
   document.body.innerHTML = '';
 });
@@ -106,6 +112,32 @@ describe('gallery DOM controller', () => {
     stage.dispatchEvent(new MouseEvent('pointerup', { bubbles: true, clientX: 70 }));
     expect(root.querySelector<HTMLImageElement>('[data-gallery-image]')!.alt).toBe('Studio one');
     cleanup();
+  });
+
+  it('captures an active pointer and releases it after an outside swipe, cancellation, and cleanup', () => {
+    const root = mountGalleryFixture();
+    const cleanup = initGallery(root, fixtureCategories);
+    const stage = root.querySelector<HTMLElement>('[data-gallery-open]')!;
+    const capture = vi.fn();
+    const release = vi.fn();
+    Object.assign(stage, {
+      setPointerCapture: capture,
+      releasePointerCapture: release,
+    });
+
+    stage.dispatchEvent(pointerEvent('pointerdown', 120, 8));
+    stage.dispatchEvent(pointerEvent('pointerup', 70, 8));
+    expect(capture).toHaveBeenCalledWith(8);
+    expect(release).toHaveBeenCalledWith(8);
+    expect(root.querySelector<HTMLImageElement>('[data-gallery-image]')!.alt).toBe('Studio two');
+
+    stage.dispatchEvent(pointerEvent('pointerdown', 90, 9));
+    stage.dispatchEvent(pointerEvent('pointercancel', 90, 9));
+    expect(release).toHaveBeenCalledWith(9);
+
+    cleanup();
+    stage.dispatchEvent(pointerEvent('pointerdown', 80, 10));
+    expect(capture).toHaveBeenCalledTimes(2);
   });
 
   it('opens an accessible lightbox, returns focus on Escape, and removes listeners on cleanup', () => {

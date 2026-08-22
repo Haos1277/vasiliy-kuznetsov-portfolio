@@ -16,6 +16,7 @@ export function initGallery<Id extends string>(
   const categoryIds = categories.map(({ id }) => id) as [Id, ...Id[]];
   let state = createGalleryState(categoryIds);
   let pointerStartX: number | undefined;
+  let activePointerId: number | undefined;
   let focusReturnTarget: HTMLElement | undefined;
   let suppressOpen = false;
 
@@ -171,13 +172,33 @@ export function initGallery<Id extends string>(
     trapFocus(event);
   };
 
+  const releasePointer = () => {
+    const pointerId = activePointerId;
+    activePointerId = undefined;
+    if (pointerId === undefined || !imageButton?.releasePointerCapture) return;
+    try {
+      imageButton.releasePointerCapture(pointerId);
+    } catch {
+      // The pointer can already be released by the browser.
+    }
+  };
+
   const onPointerDown = (event: PointerEvent) => {
+    if (activePointerId !== undefined) return;
     pointerStartX = event.clientX;
+    activePointerId = event.pointerId;
+    if (!imageButton?.setPointerCapture) return;
+    try {
+      imageButton.setPointerCapture(event.pointerId);
+    } catch {
+      // Pointer capture is unavailable for synthetic or already-finished pointers.
+    }
   };
   const onPointerUp = (event: PointerEvent) => {
-    if (pointerStartX === undefined) return;
+    if (pointerStartX === undefined || activePointerId !== event.pointerId) return;
     const distance = event.clientX - pointerStartX;
     pointerStartX = undefined;
+    releasePointer();
     if (Math.abs(distance) < swipeThreshold) return;
     suppressOpen = true;
     changeFrame(distance < 0 ? 1 : -1);
@@ -185,8 +206,10 @@ export function initGallery<Id extends string>(
       suppressOpen = false;
     });
   };
-  const onPointerCancel = () => {
+  const onPointerCancel = (event: PointerEvent) => {
+    if (activePointerId !== event.pointerId) return;
     pointerStartX = undefined;
+    releasePointer();
   };
 
   const bindings: Array<[EventTarget, string, EventListenerOrEventListenerObject]> = [];
@@ -215,11 +238,13 @@ export function initGallery<Id extends string>(
   listen(document, 'keydown', onKeydown as EventListener);
   listen(imageButton, 'pointerdown', onPointerDown as EventListener);
   listen(imageButton, 'pointerup', onPointerUp as EventListener);
-  listen(imageButton, 'pointercancel', onPointerCancel);
+  listen(imageButton, 'pointercancel', onPointerCancel as EventListener);
 
   render();
 
   return () => {
+    pointerStartX = undefined;
+    releasePointer();
     bindings.forEach(([target, event, listener]) => target.removeEventListener(event, listener));
   };
 }

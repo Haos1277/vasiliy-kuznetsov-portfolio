@@ -24,6 +24,11 @@ Status: **PARTIAL-BY-RULING**
 
 `Add AI mode-card visuals`
 
+## Admin Fix
+
+- This report is intentionally stored at `.superpowers/sdd/2026-08-22-video-ai-portfolios/task-5-report.md`.
+- `.superpowers/sdd/2026-08-22-video-ai-portfolios/progress.md` exists and was intentionally left unchanged.
+
 ## Deferred user inputs
 
 - Supplied YouTube URLs, approved factual titles/categories, and optional verified years/durations for videographer and AI video works.

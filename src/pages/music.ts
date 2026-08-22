@@ -1,5 +1,6 @@
 import { musicTracks } from '../data/music';
-import { initMusicPlayer } from '../lib/music-player';
+import type { MusicTrack } from '../lib/music-types';
+import { formatTime, initMusicPlayer, toWholeSeconds } from '../lib/music-player';
 import { withBase } from '../lib/paths';
 import { initPortfolioShell, renderPortfolioShell } from '../shared/portfolio-shell';
 import '../styles/tokens.css';
@@ -10,6 +11,21 @@ import '../styles/motion.css';
 import '../styles/portfolio-layout.css';
 import '../styles/portfolio-components.css';
 import '../styles/portfolio-motion.css';
+
+export const renderMusicPlaylist = (tracks: readonly MusicTrack[]): string =>
+  tracks
+    .map(
+      (track, index) => `
+            <li>
+              <button class="music-track" type="button" data-music-track="${track.id}">
+                <span class="music-track__number">${String(index + 1).padStart(2, '0')}</span>
+                <span class="music-track__title">${track.title}</span>
+                <span class="music-track__artist">${track.artist}</span>
+                <time class="music-track__duration" datetime="PT${toWholeSeconds(track.duration)}S">${formatTime(track.duration)}</time>
+              </button>
+            </li>`,
+    )
+    .join('');
 
 const musicPageMarkup = `
   <section class="music-portfolio" aria-label="Композиции DJ_Schmied" data-music-root data-page-content data-reveal>
@@ -74,19 +90,7 @@ const musicPageMarkup = `
     </div>
 
     <ol class="music-playlist reveal-item" aria-label="Список композиций">
-      ${musicTracks
-        .map(
-          (track, index) => `
-            <li>
-              <button class="music-track" type="button" data-music-track="${track.id}">
-                <span class="music-track__number">${String(index + 1).padStart(2, '0')}</span>
-                <span class="music-track__title">${track.title}</span>
-                <span class="music-track__artist">${track.artist}</span>
-                <time class="music-track__duration" datetime="PT${Math.round(track.duration)}S">04:38</time>
-              </button>
-            </li>`,
-        )
-        .join('')}
+      ${renderMusicPlaylist(musicTracks)}
     </ol>
   </section>`;
 

@@ -49,10 +49,11 @@ const clampProgress = (value: number): number =>
 const isPlayableDuration = (duration: number): boolean =>
   Number.isFinite(duration) && duration > 0;
 
-const formatTime = (seconds: number): string => {
-  if (!Number.isFinite(seconds) || seconds <= 0) return '00:00';
+export const toWholeSeconds = (seconds: number): number =>
+  Number.isFinite(seconds) && seconds >= 0 ? Math.floor(seconds) : 0;
 
-  const totalSeconds = Math.floor(seconds);
+export const formatTime = (seconds: number): string => {
+  const totalSeconds = toWholeSeconds(seconds);
   const minutes = Math.floor(totalSeconds / 60);
   const remainingSeconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;

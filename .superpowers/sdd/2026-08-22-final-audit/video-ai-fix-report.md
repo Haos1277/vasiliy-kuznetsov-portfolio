@@ -41,3 +41,25 @@
 ## Commit
 
 `Fix video player empty states and AI cleanup`
+
+## Round 2
+
+### RED
+
+- After a valid selected iframe raised a synthetic `error`, both the normal watch link and fallback link remained visible and focusable with the same YouTube URL.
+
+### GREEN
+
+- The iframe error transition now clears and hides the normal watch link before revealing the fallback. The fallback owns the sole valid YouTube `href`; the normal link has no `href`.
+
+### Verification
+
+- RED: `npm test -- tests/video-playlist.test.ts` — 1 expected failure: normal watch link was still visible after the error.
+- Focused: `npm test -- tests/video-playlist.test.ts tests/ai-modes.test.ts tests/video-page.test.ts tests/ai-page.test.ts` — 17 passed.
+- Full: `npm test` — 23 files, 96 tests passed.
+- Build: `npm run build` — passed.
+- Whitespace: `git diff --check` — passed.
+
+### Commit
+
+`Prevent duplicate YouTube links after player errors`

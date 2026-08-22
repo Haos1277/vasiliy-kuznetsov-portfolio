@@ -200,7 +200,10 @@ export function initVideoPlaylist<Category extends string>(
 
   listen(frame, 'error', () => {
     const work = getActiveWork();
-    if (work) showFallback(work);
+    if (work) {
+      hideWatchLink();
+      showFallback(work);
+    }
   });
 
   render();

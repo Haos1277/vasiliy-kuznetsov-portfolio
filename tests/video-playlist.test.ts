@@ -121,12 +121,20 @@ describe('video playlist controller', () => {
     const root = mountVideoFixture();
     const cleanup = initVideoPlaylist(root, fixtureWorks);
     root.querySelector<HTMLButtonElement>('[data-video-work="individual-1"]')!.click();
+    const watch = root.querySelector<HTMLElement>('[data-video-watch]')!;
+    const watchLink = root.querySelector<HTMLAnchorElement>('[data-video-watch-link]')!;
+    expect(watch.hidden).toBe(false);
+    expect(watchLink.href).toBe('https://www.youtube.com/watch?v=9bZkp7q19f0');
+
     root.querySelector<HTMLIFrameElement>('[data-video-frame]')!.dispatchEvent(new Event('error'));
 
     const fallback = root.querySelector<HTMLElement>('[data-video-fallback]')!;
     const link = root.querySelector<HTMLAnchorElement>('[data-video-fallback-link]')!;
+    expect(watch.hidden).toBe(true);
+    expect(watchLink.hasAttribute('href')).toBe(false);
     expect(fallback.hidden).toBe(false);
     expect(link.href).toBe('https://www.youtube.com/watch?v=9bZkp7q19f0');
+    expect(root.querySelectorAll('a[href*="youtube.com/watch"]')).toHaveLength(1);
     cleanup();
   });
 

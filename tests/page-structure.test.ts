@@ -43,4 +43,10 @@ describe('portfolio page structure', () => {
     ]);
     expect(portfolioLinks.every((link) => !link.matches(':disabled'))).toBe(true);
   });
+
+  it('describes the four portfolio directions without implying spoken languages', () => {
+    expect(document.querySelector('#about-title')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Один автор. Четыре направления.',
+    );
+  });
 });

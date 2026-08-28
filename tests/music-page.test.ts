@@ -64,6 +64,21 @@ describe('DJ_Schmied music page', () => {
     expect(document.querySelectorAll('[data-music-waveform]')).toHaveLength(1);
     expect(document.querySelector('[data-music-play]')).not.toBeNull();
     expect(document.querySelector('[data-music-seek]')).not.toBeNull();
+    expect(document.querySelector('[data-music-prev]')?.textContent?.trim()).toBe('');
+    expect(document.querySelector('[data-music-play]')?.textContent?.trim()).toBe('');
+    expect(document.querySelector('[data-music-next]')?.textContent?.trim()).toBe('');
+    expect(document.querySelector('[data-music-prev]')?.getAttribute('aria-label')).toBe(
+      'Предыдущая композиция',
+    );
+    expect(document.querySelector('[data-music-play]')?.getAttribute('aria-label')).toBe(
+      'Воспроизвести',
+    );
+    expect(document.querySelector('[data-music-next]')?.getAttribute('aria-label')).toBe(
+      'Следующая композиция',
+    );
+    expect(document.querySelector('.music-player__secondary')).toBeNull();
+    expect(document.querySelector('.music-player__volume')).not.toBeNull();
+    expect(document.querySelector('[data-music-volume]')?.closest('details')).toBeNull();
     expect(document.querySelector<HTMLImageElement>('.music-player__cover')?.src).toContain(
       '/media/music.webp',
     );

@@ -63,16 +63,15 @@ const musicPageMarkup = `
         <canvas class="music-player__waveform" data-music-waveform aria-hidden="true"></canvas>
 
         <div class="music-player__transport" aria-label="Управление воспроизведением">
-          <button class="music-player__control" type="button" data-music-prev aria-label="Предыдущая композиция">Назад</button>
-          <button class="music-player__play" type="button" data-music-play aria-pressed="false">Воспроизвести</button>
-          <button class="music-player__control" type="button" data-music-next aria-label="Следующая композиция">Вперёд</button>
+          <button class="music-player__control music-player__control--previous" type="button" data-music-prev aria-label="Предыдущая композиция"></button>
+          <button class="music-player__play" type="button" data-music-play data-state="paused" aria-label="Воспроизвести" aria-pressed="false"></button>
+          <button class="music-player__control music-player__control--next" type="button" data-music-next aria-label="Следующая композиция"></button>
         </div>
 
         <div class="music-player__options" aria-label="Настройки воспроизведения">
           <button class="music-player__option" type="button" data-music-shuffle aria-pressed="false">Случайно</button>
           <button class="music-player__option" type="button" data-music-repeat aria-pressed="false">Повтор</button>
-          <details class="music-player__secondary">
-            <summary>Громкость</summary>
+          <div class="music-player__volume">
             <label for="music-volume">Громкость</label>
             <input
               id="music-volume"
@@ -83,7 +82,7 @@ const musicPageMarkup = `
               value="1"
               data-music-volume
             />
-          </details>
+          </div>
         </div>
         <p class="music-player__error" data-music-error role="status" aria-live="polite" hidden></p>
       </div>

@@ -107,7 +107,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       </div>
       <div class="about__copy reveal-item">
         <p class="eyebrow">Обо мне</p>
-        <h2 id="about-title">Один автор.<br /><span>Четыре языка.</span></h2>
+        <h2 id="about-title">Один автор.<br /> <span>Четыре направления.</span></h2>
         ${profile.about.map((paragraph) => `<p>${paragraph}</p>`).join('')}
       </div>
     </section>

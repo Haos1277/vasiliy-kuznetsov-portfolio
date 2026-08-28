@@ -23,8 +23,8 @@
   grid-template-columns: minmax(240px, 0.68fr) minmax(320px, 1fr);
   gap: clamp(3rem, 7vw, 7rem);
   align-items: center;
-  padding-top: clamp(3.25rem, 5vw, 5rem);
-  padding-bottom: clamp(2rem, 3.5vw, 3.5rem);
+  padding-top: calc(var(--section-tight-gap) / 2);
+  padding-bottom: calc(var(--section-tight-gap) / 2);
 }
 
 .about > .section-index {
@@ -83,7 +83,7 @@
 }
 
 .directions {
-  padding-top: clamp(2rem, 3.5vw, 3.5rem);
+  padding-top: calc(var(--section-tight-gap) / 2);
   padding-bottom: clamp(4.5rem, 7vw, 7rem);
 }
 
@@ -192,7 +192,7 @@
   width: calc(100% - 2 * var(--page-gutter));
   max-width: calc(var(--max-width) - 2 * var(--page-gutter));
   min-height: min(760px, 82vh);
-  margin: var(--section-space) auto;
+  margin: var(--section-space) auto 0;
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -251,6 +251,8 @@
   grid-template-columns: minmax(300px, 0.82fr) minmax(420px, 1.18fr);
   gap: clamp(4rem, 8vw, 9rem);
   align-items: start;
+  padding-top: var(--section-tight-gap);
+  padding-bottom: calc(var(--section-tight-gap) / 2);
 }
 
 .booking h2 {
@@ -264,7 +266,7 @@
 }
 
 .site-footer {
-  padding-top: var(--section-space);
+  padding-top: calc(var(--section-tight-gap) / 2);
   padding-bottom: 2rem;
 }
 

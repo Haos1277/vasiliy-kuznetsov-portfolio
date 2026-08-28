@@ -154,7 +154,8 @@ export function initMusicPlayer(root: HTMLElement, tracks: readonly MusicTrack[]
     elements.next.disabled = !track;
     elements.shuffle.disabled = !hasTracks;
     elements.repeat.disabled = !hasTracks;
-    elements.play.textContent = state.playing ? 'Пауза' : 'Воспроизвести';
+    elements.play.textContent = '';
+    elements.play.dataset.state = state.playing ? 'playing' : 'paused';
     elements.play.setAttribute('aria-label', state.playing ? 'Поставить на паузу' : 'Воспроизвести');
     elements.play.setAttribute('aria-pressed', String(state.playing));
     elements.previous.setAttribute('aria-label', 'Предыдущая композиция');

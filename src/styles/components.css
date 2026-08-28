@@ -89,7 +89,7 @@
   min-height: 100svh;
   max-width: 1680px;
   margin-inline: auto;
-  padding: clamp(7.5rem, 13vh, 10rem) var(--page-gutter) clamp(5rem, 9vh, 7rem);
+  padding: clamp(7.5rem, 13vh, 10rem) var(--page-gutter) calc(var(--section-tight-gap) / 2);
   display: grid;
   grid-template-columns: minmax(330px, 0.9fr) minmax(420px, 1.1fr);
   grid-template-areas: 'copy visual';

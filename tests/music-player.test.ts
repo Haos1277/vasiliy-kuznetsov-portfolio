@@ -83,21 +83,26 @@ describe('music player controller', () => {
   it('keeps the real one-track playlist unloaded until its first explicit play action', () => {
     const root = mountMusicFixture(musicTracks);
     const audio = root.querySelector<HTMLAudioElement>('[data-music-audio]')!;
+    const play = root.querySelector<HTMLButtonElement>('[data-music-play]')!;
     audio.play = vi.fn().mockResolvedValue(undefined);
 
     const cleanup = initMusicPlayer(root, musicTracks);
 
     expect(audio.hasAttribute('src')).toBe(false);
+    expect(play.dataset.state).toBe('paused');
+    expect(play.textContent).toBe('');
     expect(root.querySelector('[data-music-title]')?.textContent).toBe(
       'A storm covers the sky with darkness',
     );
     expect(root.querySelector('[data-music-duration]')?.textContent).toBe('04:38');
     expect(root.querySelector('[data-music-track]')?.getAttribute('aria-current')).toBe('true');
 
-    root.querySelector<HTMLButtonElement>('[data-music-play]')!.click();
+    play.click();
 
     expect(audio.src).toContain('/media/dj-schmied-storm.mp3');
     expect(audio.play).toHaveBeenCalledOnce();
+    expect(play.dataset.state).toBe('playing');
+    expect(play.textContent).toBe('');
     cleanup();
   });
 

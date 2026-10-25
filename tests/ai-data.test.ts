@@ -44,7 +44,7 @@ describe('AI portfolio data', () => {
   it('publishes every supplied AI photograph with existing WebP assets', () => {
     expect(aiPhotos).toHaveLength(17);
     expect(aiPhotoCollection.items).toEqual(aiPhotos);
-    expect(aiVideoWorks).toEqual([]);
+    expect(aiVideoWorks).toHaveLength(15);
 
     for (const item of aiPhotos) {
       const thumbnailPath = resolve(

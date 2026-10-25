@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 describe('AI creator page', () => {
-  it('renders the two approved modes, an active photo workspace, and truthful empty states', async () => {
+  it('renders the two approved modes and both supplied media collections', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     vi.stubGlobal('IntersectionObserver', undefined);
     vi.stubGlobal('matchMedia', () => ({ matches: false }));
@@ -29,13 +29,12 @@ describe('AI creator page', () => {
     expect(document.querySelector('[data-gallery-empty]')?.textContent).toContain(
       'Фотографии этой категории появятся здесь после подготовки материалов.',
     );
-    expect(document.querySelector('[data-video-empty]')?.textContent).toContain(
-      'AI-видео и анимация появятся здесь после подготовки материалов.',
-    );
+    expect(document.querySelectorAll('[data-video-work]')).toHaveLength(15);
+    expect(document.querySelector<HTMLElement>('[data-video-empty]')?.hidden).toBe(true);
     expect(document.querySelector<HTMLIFrameElement>('[data-video-frame]')?.getAttribute('src')).toBeNull();
     expect(document.querySelectorAll('[data-video-native]')).toHaveLength(1);
     expect(document.querySelector<HTMLVideoElement>('[data-video-native]')?.hidden).toBe(true);
-    expect(document.querySelector<HTMLElement>('[data-video-player]')?.hidden).toBe(true);
+    expect(document.querySelector<HTMLElement>('[data-video-player]')?.hidden).toBe(false);
     expect(document.querySelector('.portfolio-cta')?.textContent).toContain(
       'Есть идея, которую невозможно снять обычной камерой?',
     );

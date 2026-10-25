@@ -27,7 +27,7 @@ describe('videographer page', () => {
     expect(document.querySelectorAll('[data-video-list]')).toHaveLength(1);
   });
 
-  it('keeps the player unloaded and presents the truthful empty state', async () => {
+  it('keeps the player unloaded and presents every supplied work', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     vi.stubGlobal('IntersectionObserver', undefined);
     vi.stubGlobal('matchMedia', () => ({ matches: true }));
@@ -40,10 +40,9 @@ describe('videographer page', () => {
     expect(frame?.getAttribute('src')).toBeNull();
     expect(native?.getAttribute('src')).toBeNull();
     expect(native?.hidden).toBe(true);
-    expect(player?.hidden).toBe(true);
-    expect(document.querySelector('[data-video-empty]')?.textContent).toContain(
-      'Видеоработы появятся здесь после подготовки материалов.',
-    );
+    expect(player?.hidden).toBe(false);
+    expect(document.querySelectorAll('[data-video-work]')).toHaveLength(23);
+    expect(document.querySelector<HTMLElement>('[data-video-empty]')?.hidden).toBe(true);
     expect(document.querySelector('[data-video-fallback]')).not.toBeNull();
     expect(document.querySelector('.portfolio-cta')?.textContent).toContain(
       'Есть история, которую хочется показать в движении?',

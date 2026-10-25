@@ -49,7 +49,7 @@ describe('DJ_Schmied music page', () => {
     expect(playlist).toContain('datetime="PT65S">01:05</time>');
   });
 
-  it('renders the usable one-track player without loading audio before play', async () => {
+  it('renders the supplied playlist without loading audio before play', async () => {
     document.body.innerHTML = '<div id="app"></div>';
     vi.stubGlobal('IntersectionObserver', undefined);
     vi.stubGlobal('matchMedia', () => ({ matches: true }));
@@ -82,7 +82,7 @@ describe('DJ_Schmied music page', () => {
     expect(document.querySelector<HTMLImageElement>('.music-player__cover')?.src).toContain(
       '/media/music.webp',
     );
-    expect(document.querySelectorAll('[data-music-track]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-music-track]')).toHaveLength(12);
     expect(document.querySelector('[data-music-track]')?.textContent).toContain(
       'A storm covers the sky with darkness',
     );

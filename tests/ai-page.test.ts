@@ -33,6 +33,8 @@ describe('AI creator page', () => {
       'AI-видео и анимация появятся здесь после подготовки материалов.',
     );
     expect(document.querySelector<HTMLIFrameElement>('[data-video-frame]')?.getAttribute('src')).toBeNull();
+    expect(document.querySelectorAll('[data-video-native]')).toHaveLength(1);
+    expect(document.querySelector<HTMLVideoElement>('[data-video-native]')?.hidden).toBe(true);
     expect(document.querySelector<HTMLElement>('[data-video-player]')?.hidden).toBe(true);
     expect(document.querySelector('.portfolio-cta')?.textContent).toContain(
       'Есть идея, которую невозможно снять обычной камерой?',

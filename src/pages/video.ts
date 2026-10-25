@@ -20,6 +20,14 @@ const videoPageMarkup = `
         allowfullscreen
         referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
+      <video
+        class="video-player__native"
+        data-video-native
+        controls
+        playsinline
+        preload="metadata"
+        hidden
+      ></video>
       <p class="video-player__watch" data-video-watch hidden>
         <a data-video-watch-link target="_blank" rel="noreferrer">Открыть видео на YouTube</a>
       </p>

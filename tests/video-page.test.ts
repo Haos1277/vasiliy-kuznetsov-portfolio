@@ -17,6 +17,7 @@ describe('videographer page', () => {
 
     const player = document.querySelector<HTMLElement>('[data-video-player]');
     expect(document.querySelectorAll('[data-video-frame]')).toHaveLength(1);
+    expect(document.querySelectorAll('[data-video-native]')).toHaveLength(1);
     expect(player).not.toBeNull();
     expect(
       [...document.querySelectorAll('[data-video-filter]')].map((item) =>
@@ -34,8 +35,11 @@ describe('videographer page', () => {
     await import('../src/pages/video');
 
     const frame = document.querySelector<HTMLIFrameElement>('[data-video-frame]');
+    const native = document.querySelector<HTMLVideoElement>('[data-video-native]');
     const player = document.querySelector<HTMLElement>('[data-video-player]');
     expect(frame?.getAttribute('src')).toBeNull();
+    expect(native?.getAttribute('src')).toBeNull();
+    expect(native?.hidden).toBe(true);
     expect(player?.hidden).toBe(true);
     expect(document.querySelector('[data-video-empty]')?.textContent).toContain(
       'Видеоработы появятся здесь после подготовки материалов.',

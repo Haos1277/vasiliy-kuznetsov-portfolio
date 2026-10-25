@@ -38,6 +38,18 @@ const aiWorks = [
   },
 ] as const satisfies readonly VideoWork<'ai'>[];
 
+const directWorks = [
+  {
+    id: 'direct-1',
+    src: 'https://github.com/example/portfolio/releases/download/media/direct-1.mp4',
+    poster: '/media/video/posters/direct-1.webp',
+    title: 'Direct video',
+    category: 'individual',
+    duration: '01:23',
+  },
+  fixtureWorks[0],
+] as const satisfies readonly VideoWork<'concert' | 'individual'>[];
+
 const malformedWorks = [
   fixtureWorks[0],
   {
@@ -53,6 +65,7 @@ const mountVideoFixture = (filters = ['all', 'concert', 'individual']): HTMLElem
     <section data-video-root>
       <div data-video-player>
         <iframe data-video-frame></iframe>
+        <video data-video-native controls playsinline preload="metadata" hidden></video>
         <p data-video-watch hidden><a data-video-watch-link></a></p>
         <p data-video-fallback hidden><a data-video-fallback-link></a></p>
       </div>
@@ -114,6 +127,63 @@ describe('video playlist controller', () => {
     expect(root.querySelectorAll('[data-video-frame]')).toHaveLength(1);
     expect(root.querySelector('[data-video-work="concert-1"]')!.classList.contains('is-active')).toBe(true);
     expect(root.querySelector('[data-video-work="individual-1"]')!.classList.contains('is-active')).toBe(false);
+    cleanup();
+  });
+
+  it('loads a direct video in the native player and unloads it before selecting YouTube', () => {
+    const root = mountVideoFixture();
+    const native = root.querySelector<HTMLVideoElement>('[data-video-native]')!;
+    const pause = vi.fn();
+    const play = vi.fn().mockResolvedValue(undefined);
+    Object.assign(native, { pause, play });
+    const cleanup = initVideoPlaylist(root, directWorks);
+
+    root.querySelector<HTMLButtonElement>('[data-video-work="direct-1"]')!.click();
+
+    expect(native.hidden).toBe(false);
+    expect(native.getAttribute('src')).toBe(
+      'https://github.com/example/portfolio/releases/download/media/direct-1.mp4',
+    );
+    expect(native.getAttribute('poster')).toBe('/media/video/posters/direct-1.webp');
+    expect(native.getAttribute('aria-label')).toBe('Видео: Direct video');
+    expect(play).toHaveBeenCalledOnce();
+    expect(root.querySelector<HTMLIFrameElement>('[data-video-frame]')!.hidden).toBe(true);
+    expect(root.querySelector<HTMLAnchorElement>('[data-video-watch-link]')!.href).toBe(
+      'https://github.com/example/portfolio/releases/download/media/direct-1.mp4',
+    );
+
+    root.querySelector<HTMLButtonElement>('[data-video-work="concert-1"]')!.click();
+
+    expect(pause).toHaveBeenCalled();
+    expect(native.hidden).toBe(true);
+    expect(native.hasAttribute('src')).toBe(false);
+    expect(root.querySelector<HTMLIFrameElement>('[data-video-frame]')!.hidden).toBe(false);
+    expect(root.querySelector<HTMLIFrameElement>('[data-video-frame]')!.src).toContain(
+      '/embed/dQw4w9WgXcQ?autoplay=1&rel=0',
+    );
+    cleanup();
+  });
+
+  it('shows a direct link when a native video cannot be played', () => {
+    const root = mountVideoFixture();
+    const native = root.querySelector<HTMLVideoElement>('[data-video-native]')!;
+    Object.assign(native, {
+      pause: vi.fn(),
+      play: vi.fn().mockRejectedValue(new Error('blocked')),
+    });
+    const cleanup = initVideoPlaylist(root, directWorks);
+
+    root.querySelector<HTMLButtonElement>('[data-video-work="direct-1"]')!.click();
+    native.dispatchEvent(new Event('error'));
+
+    const fallback = root.querySelector<HTMLElement>('[data-video-fallback]')!;
+    const link = root.querySelector<HTMLAnchorElement>('[data-video-fallback-link]')!;
+    expect(fallback.hidden).toBe(false);
+    expect(fallback.textContent).toContain('Не удалось загрузить видео');
+    expect(link.href).toBe(
+      'https://github.com/example/portfolio/releases/download/media/direct-1.mp4',
+    );
+    expect(link.textContent).toBe('Открыть видео отдельно');
     cleanup();
   });
 
@@ -226,6 +296,23 @@ describe('video playlist controller', () => {
     expect(frame.getAttribute('src')).toBeNull();
     expect(root.querySelector('[data-video-work="concert-1"]')!.getAttribute('aria-pressed')).toBe('false');
     expect(root.querySelector<HTMLElement>('[data-video-watch]')!.hidden).toBe(true);
+    controller();
+  });
+
+  it('pauses and unloads a selected direct video through the controller lifecycle API', () => {
+    const root = mountVideoFixture();
+    const native = root.querySelector<HTMLVideoElement>('[data-video-native]')!;
+    const pause = vi.fn();
+    Object.assign(native, { pause, play: vi.fn().mockResolvedValue(undefined) });
+    const controller = initVideoPlaylist(root, directWorks);
+
+    root.querySelector<HTMLButtonElement>('[data-video-work="direct-1"]')!.click();
+    controller.stop();
+
+    expect(pause).toHaveBeenCalled();
+    expect(native.hidden).toBe(true);
+    expect(native.hasAttribute('src')).toBe(false);
+    expect(root.querySelector('[data-video-work="direct-1"]')!.getAttribute('aria-pressed')).toBe('false');
     controller();
   });
 

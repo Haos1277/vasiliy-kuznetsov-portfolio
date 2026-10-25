@@ -21,7 +21,8 @@ export function initVideoPlaylist<Category extends string>(
   let activeWorkId: string | undefined;
 
   const frame = root.querySelector<HTMLIFrameElement>('[data-video-frame]');
-  const player = root.querySelector<HTMLElement>('[data-video-player]') ?? frame;
+  const native = root.querySelector<HTMLVideoElement>('[data-video-native]');
+  const player = root.querySelector<HTMLElement>('[data-video-player]') ?? frame ?? native;
   const filters = root.querySelector<HTMLElement>('[data-video-filters]');
   const list = root.querySelector<HTMLElement>('[data-video-list]');
   const emptyState = root.querySelector<HTMLElement>('[data-video-empty]');
@@ -63,11 +64,27 @@ export function initVideoPlaylist<Category extends string>(
     watch?.setAttribute('hidden', '');
   };
 
+  const directSource = (work: VideoWork<Category>): string | undefined =>
+    'src' in work && typeof work.src === 'string' && work.src.trim() ? work.src : undefined;
+
+  const youtubeId = (work: VideoWork<Category>): string | undefined =>
+    'youtubeId' in work && typeof work.youtubeId === 'string' ? work.youtubeId : undefined;
+
   const showWatchLink = (work: VideoWork<Category>) => {
     const link = getWatchLink();
     if (!link) return;
-    link.href = youtubeWatchUrl(work.youtubeId);
-    if (!link.textContent?.trim()) link.textContent = 'Открыть видео на YouTube';
+    const src = directSource(work);
+    const id = youtubeId(work);
+    if (src) {
+      link.href = src;
+      link.textContent = 'Открыть видео отдельно';
+    } else if (id && isYouTubeId(id)) {
+      link.href = youtubeWatchUrl(id);
+      link.textContent = 'Открыть видео на YouTube';
+    } else {
+      hideWatchLink();
+      return;
+    }
     watch?.removeAttribute('hidden');
   };
 
@@ -96,16 +113,18 @@ export function initVideoPlaylist<Category extends string>(
   };
 
   const showFallback = (work: VideoWork<Category>) => {
-    if (!isYouTubeId(work.youtubeId)) {
+    const src = directSource(work);
+    const id = youtubeId(work);
+    if (!src && (!id || !isYouTubeId(id))) {
       showUnavailableFallback();
       return;
     }
     const link = getFallbackLink();
     if (!link) return;
-    link.href = youtubeWatchUrl(work.youtubeId);
+    link.href = src ?? youtubeWatchUrl(id!);
     link.hidden = false;
     link.removeAttribute('aria-disabled');
-    if (!link.textContent?.trim()) link.textContent = 'Открыть видео на YouTube';
+    link.textContent = src ? 'Открыть видео отдельно' : 'Открыть видео на YouTube';
     setFallbackMessage('Не удалось загрузить видео. ');
     fallback?.removeAttribute('hidden');
   };
@@ -154,8 +173,41 @@ export function initVideoPlaylist<Category extends string>(
 
   const selectWork = (work: VideoWork<Category>) => {
     activeWorkId = work.id;
-    if (!isYouTubeId(work.youtubeId)) {
+    const src = directSource(work);
+    const id = youtubeId(work);
+
+    if (src) {
       frame?.removeAttribute('src');
+      if (frame) frame.hidden = true;
+      if (native) {
+        native.src = src;
+        native.hidden = false;
+        native.setAttribute('aria-label', `Видео: ${work.title}`);
+        if (work.poster) native.poster = work.poster;
+        else native.removeAttribute('poster');
+        void native.play().catch(() => undefined);
+      }
+      hideFallback();
+      showWatchLink(work);
+      render();
+      if (
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(max-width: 820px)').matches &&
+        typeof player?.scrollIntoView === 'function'
+      ) {
+        player?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    if (native?.hasAttribute('src')) native.pause();
+    native?.removeAttribute('src');
+    native?.removeAttribute('poster');
+    if (native) native.hidden = true;
+
+    if (!id || !isYouTubeId(id)) {
+      frame?.removeAttribute('src');
+      if (frame) frame.hidden = false;
       hideWatchLink();
       showUnavailableFallback();
       render();
@@ -164,14 +216,19 @@ export function initVideoPlaylist<Category extends string>(
     hideFallback();
     showWatchLink(work);
     if (frame) {
-      frame.src = youtubeEmbedUrl(work.youtubeId, true);
+      frame.hidden = false;
+      frame.src = youtubeEmbedUrl(id, true);
       frame.title = `Видео: ${work.title}`;
       frame.setAttribute('allow', playerPermissions);
       frame.setAttribute('allowfullscreen', '');
       frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
     }
     render();
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 820px)').matches) {
+    if (
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(max-width: 820px)').matches &&
+      typeof player?.scrollIntoView === 'function'
+    ) {
       player?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
@@ -206,11 +263,24 @@ export function initVideoPlaylist<Category extends string>(
     }
   });
 
+  listen(native, 'error', () => {
+    const work = getActiveWork();
+    if (work) {
+      hideWatchLink();
+      showFallback(work);
+    }
+  });
+
   render();
 
   const stop = () => {
     activeWorkId = undefined;
     frame?.removeAttribute('src');
+    if (frame) frame.hidden = false;
+    if (native?.hasAttribute('src')) native.pause();
+    native?.removeAttribute('src');
+    native?.removeAttribute('poster');
+    if (native) native.hidden = true;
     hideWatchLink();
     hideFallback();
     render();

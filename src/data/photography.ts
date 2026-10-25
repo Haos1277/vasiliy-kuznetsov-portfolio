@@ -1,24 +1,138 @@
 import type { GalleryCollection, GalleryItem } from '../lib/gallery-types';
 import { withBase } from '../lib/paths';
 
-export type PhotoCategoryId = 'studio' | 'wedding' | 'product' | 'concert';
+export type PhotoCategoryId = 'studio' | 'wedding' | 'product' | 'concert' | 'nha-trang';
 
 export type PhotoItem = GalleryItem;
 
 export type PhotoCategory = GalleryCollection<PhotoCategoryId>;
+
+const photo = (
+  id: string,
+  thumbnail: string,
+  full: string,
+  alt: string,
+  width: number,
+  height: number,
+): PhotoItem => ({
+  id,
+  thumbnail: withBase(thumbnail),
+  full: withBase(full),
+  alt,
+  width,
+  height,
+});
+
+const studioItems = [
+  photo("studio-01", "media/photography/studio/thumb/dscf5718-5.webp", "media/photography/studio/full/dscf5718-5.webp", "Студийная съёмка, кадр 01", 1351, 2400),
+  photo("studio-02", "media/photography/studio/thumb/dscf5720-7.webp", "media/photography/studio/full/dscf5720-7.webp", "Студийная съёмка, кадр 02", 1351, 2400),
+  photo("studio-03", "media/photography/studio/thumb/dscf5725-12.webp", "media/photography/studio/full/dscf5725-12.webp", "Студийная съёмка, кадр 03", 1351, 2400),
+  photo("studio-04", "media/photography/studio/thumb/dscf5740-24.webp", "media/photography/studio/full/dscf5740-24.webp", "Студийная съёмка, кадр 04", 1351, 2400),
+  photo("studio-05", "media/photography/studio/thumb/dscf5742-26.webp", "media/photography/studio/full/dscf5742-26.webp", "Студийная съёмка, кадр 05", 1351, 2400),
+  photo("studio-06", "media/photography/studio/thumb/dscf5743-27.webp", "media/photography/studio/full/dscf5743-27.webp", "Студийная съёмка, кадр 06", 1351, 2400),
+  photo("studio-07", "media/photography/studio/thumb/dscf5763-35.webp", "media/photography/studio/full/dscf5763-35.webp", "Студийная съёмка, кадр 07", 1351, 2400),
+  photo("studio-08", "media/photography/studio/thumb/dscf5772-42.webp", "media/photography/studio/full/dscf5772-42.webp", "Студийная съёмка, кадр 08", 1351, 2400),
+  photo("studio-09", "media/photography/studio/thumb/dscf5775-45.webp", "media/photography/studio/full/dscf5775-45.webp", "Студийная съёмка, кадр 09", 1351, 2400),
+  photo("studio-10", "media/photography/studio/thumb/dscf5785-50.webp", "media/photography/studio/full/dscf5785-50.webp", "Студийная съёмка, кадр 10", 2400, 1351),
+  photo("studio-11", "media/photography/studio/thumb/dscf5787-52.webp", "media/photography/studio/full/dscf5787-52.webp", "Студийная съёмка, кадр 11", 2400, 1351),
+  photo("studio-12", "media/photography/studio/thumb/dscf5789-54.webp", "media/photography/studio/full/dscf5789-54.webp", "Студийная съёмка, кадр 12", 2400, 1351),
+  photo("studio-13", "media/photography/studio/thumb/image-2026-08-22-21-02-41.webp", "media/photography/studio/full/image-2026-08-22-21-02-41.webp", "Студийная съёмка, кадр 13", 1280, 722),
+  photo("studio-14", "media/photography/studio/thumb/k-030.webp", "media/photography/studio/full/k-030.webp", "Студийная съёмка, кадр 14", 1600, 2400),
+  photo("studio-15", "media/photography/studio/thumb/k-037.webp", "media/photography/studio/full/k-037.webp", "Студийная съёмка, кадр 15", 2400, 1600),
+  photo("studio-16", "media/photography/studio/thumb/k-044.webp", "media/photography/studio/full/k-044.webp", "Студийная съёмка, кадр 16", 2400, 1600),
+  photo("studio-17", "media/photography/studio/thumb/k-050.webp", "media/photography/studio/full/k-050.webp", "Студийная съёмка, кадр 17", 2400, 1600),
+  photo("studio-18", "media/photography/studio/thumb/k-109.webp", "media/photography/studio/full/k-109.webp", "Студийная съёмка, кадр 18", 1600, 2400),
+  photo("studio-19", "media/photography/studio/thumb/k-143.webp", "media/photography/studio/full/k-143.webp", "Студийная съёмка, кадр 19", 2400, 1600),
+  photo("studio-20", "media/photography/studio/thumb/k-170.webp", "media/photography/studio/full/k-170.webp", "Студийная съёмка, кадр 20", 1600, 2400),
+  photo("studio-21", "media/photography/studio/thumb/k-175.webp", "media/photography/studio/full/k-175.webp", "Студийная съёмка, кадр 21", 1600, 2400),
+] as const satisfies readonly PhotoItem[];
+
+const weddingItems = [
+  photo("wedding-01", "media/photography/wedding/thumb/slavagrebenkin-ru-0003.webp", "media/photography/wedding/full/slavagrebenkin-ru-0003.webp", "Свадебная съёмка, кадр 01", 1601, 2400),
+  photo("wedding-02", "media/photography/wedding/thumb/slavagrebenkin-ru-0087.webp", "media/photography/wedding/full/slavagrebenkin-ru-0087.webp", "Свадебная съёмка, кадр 02", 1601, 2400),
+  photo("wedding-03", "media/photography/wedding/thumb/slavagrebenkin-ru-0108.webp", "media/photography/wedding/full/slavagrebenkin-ru-0108.webp", "Свадебная съёмка, кадр 03", 1600, 2400),
+  photo("wedding-04", "media/photography/wedding/thumb/slavagrebenkin-ru-0163.webp", "media/photography/wedding/full/slavagrebenkin-ru-0163.webp", "Свадебная съёмка, кадр 04", 1600, 2400),
+  photo("wedding-05", "media/photography/wedding/thumb/slavagrebenkin-ru-0177.webp", "media/photography/wedding/full/slavagrebenkin-ru-0177.webp", "Свадебная съёмка, кадр 05", 1600, 2400),
+  photo("wedding-06", "media/photography/wedding/thumb/slavagrebenkin-ru-0246.webp", "media/photography/wedding/full/slavagrebenkin-ru-0246.webp", "Свадебная съёмка, кадр 06", 1600, 2400),
+  photo("wedding-07", "media/photography/wedding/thumb/slavagrebenkin-ru-0254.webp", "media/photography/wedding/full/slavagrebenkin-ru-0254.webp", "Свадебная съёмка, кадр 07", 2400, 1600),
+  photo("wedding-08", "media/photography/wedding/thumb/slavagrebenkin-ru-0259.webp", "media/photography/wedding/full/slavagrebenkin-ru-0259.webp", "Свадебная съёмка, кадр 08", 2400, 1600),
+  photo("wedding-09", "media/photography/wedding/thumb/slavagrebenkin-ru-0289.webp", "media/photography/wedding/full/slavagrebenkin-ru-0289.webp", "Свадебная съёмка, кадр 09", 2400, 1600),
+  photo("wedding-10", "media/photography/wedding/thumb/slavagrebenkin-ru-0329.webp", "media/photography/wedding/full/slavagrebenkin-ru-0329.webp", "Свадебная съёмка, кадр 10", 2400, 1601),
+  photo("wedding-11", "media/photography/wedding/thumb/slavagrebenkin-ru-0343.webp", "media/photography/wedding/full/slavagrebenkin-ru-0343.webp", "Свадебная съёмка, кадр 11", 2400, 1600),
+  photo("wedding-12", "media/photography/wedding/thumb/slavagrebenkin-ru-0346.webp", "media/photography/wedding/full/slavagrebenkin-ru-0346.webp", "Свадебная съёмка, кадр 12", 1601, 2400),
+  photo("wedding-13", "media/photography/wedding/thumb/slavagrebenkin-ru-0357.webp", "media/photography/wedding/full/slavagrebenkin-ru-0357.webp", "Свадебная съёмка, кадр 13", 1600, 2400),
+  photo("wedding-14", "media/photography/wedding/thumb/slavagrebenkin-ru-0367.webp", "media/photography/wedding/full/slavagrebenkin-ru-0367.webp", "Свадебная съёмка, кадр 14", 1601, 2400),
+  photo("wedding-15", "media/photography/wedding/thumb/slavagrebenkin-ru-0376.webp", "media/photography/wedding/full/slavagrebenkin-ru-0376.webp", "Свадебная съёмка, кадр 15", 1600, 2400),
+  photo("wedding-16", "media/photography/wedding/thumb/slavagrebenkin-ru-0393.webp", "media/photography/wedding/full/slavagrebenkin-ru-0393.webp", "Свадебная съёмка, кадр 16", 2400, 1600),
+  photo("wedding-17", "media/photography/wedding/thumb/slavagrebenkin-ru-0398.webp", "media/photography/wedding/full/slavagrebenkin-ru-0398.webp", "Свадебная съёмка, кадр 17", 2400, 1600),
+  photo("wedding-18", "media/photography/wedding/thumb/slavagrebenkin-ru-0408.webp", "media/photography/wedding/full/slavagrebenkin-ru-0408.webp", "Свадебная съёмка, кадр 18", 2400, 1601),
+  photo("wedding-19", "media/photography/wedding/thumb/slavagrebenkin-ru-0415.webp", "media/photography/wedding/full/slavagrebenkin-ru-0415.webp", "Свадебная съёмка, кадр 19", 1600, 2400),
+  photo("wedding-20", "media/photography/wedding/thumb/slavagrebenkin-ru-0426.webp", "media/photography/wedding/full/slavagrebenkin-ru-0426.webp", "Свадебная съёмка, кадр 20", 2400, 1601),
+  photo("wedding-21", "media/photography/wedding/thumb/slavagrebenkin-ru-0429.webp", "media/photography/wedding/full/slavagrebenkin-ru-0429.webp", "Свадебная съёмка, кадр 21", 2400, 1600),
+  photo("wedding-22", "media/photography/wedding/thumb/slavagrebenkin-ru-0433.webp", "media/photography/wedding/full/slavagrebenkin-ru-0433.webp", "Свадебная съёмка, кадр 22", 2400, 1600),
+  photo("wedding-23", "media/photography/wedding/thumb/slavagrebenkin-ru-0434.webp", "media/photography/wedding/full/slavagrebenkin-ru-0434.webp", "Свадебная съёмка, кадр 23", 2400, 1600),
+  photo("wedding-24", "media/photography/wedding/thumb/slavagrebenkin-ru-0437.webp", "media/photography/wedding/full/slavagrebenkin-ru-0437.webp", "Свадебная съёмка, кадр 24", 2400, 1600),
+  photo("wedding-25", "media/photography/wedding/thumb/slavagrebenkin-ru-0440.webp", "media/photography/wedding/full/slavagrebenkin-ru-0440.webp", "Свадебная съёмка, кадр 25", 1601, 2400),
+  photo("wedding-26", "media/photography/wedding/thumb/slavagrebenkin-ru-0446.webp", "media/photography/wedding/full/slavagrebenkin-ru-0446.webp", "Свадебная съёмка, кадр 26", 1600, 2400),
+  photo("wedding-27", "media/photography/wedding/thumb/slavagrebenkin-ru-0450.webp", "media/photography/wedding/full/slavagrebenkin-ru-0450.webp", "Свадебная съёмка, кадр 27", 1600, 2400),
+  photo("wedding-28", "media/photography/wedding/thumb/slavagrebenkin-ru-0517.webp", "media/photography/wedding/full/slavagrebenkin-ru-0517.webp", "Свадебная съёмка, кадр 28", 2400, 1600),
+  photo("wedding-29", "media/photography/wedding/thumb/slavagrebenkin-ru-0536.webp", "media/photography/wedding/full/slavagrebenkin-ru-0536.webp", "Свадебная съёмка, кадр 29", 2400, 1600),
+  photo("wedding-30", "media/photography/wedding/thumb/slavagrebenkin-ru-0578.webp", "media/photography/wedding/full/slavagrebenkin-ru-0578.webp", "Свадебная съёмка, кадр 30", 1601, 2400),
+  photo("wedding-31", "media/photography/wedding/thumb/slavagrebenkin-ru-0582.webp", "media/photography/wedding/full/slavagrebenkin-ru-0582.webp", "Свадебная съёмка, кадр 31", 2400, 1600),
+  photo("wedding-32", "media/photography/wedding/thumb/slavagrebenkin-ru-0587.webp", "media/photography/wedding/full/slavagrebenkin-ru-0587.webp", "Свадебная съёмка, кадр 32", 1600, 2400),
+  photo("wedding-33", "media/photography/wedding/thumb/slavagrebenkin-ru-0592.webp", "media/photography/wedding/full/slavagrebenkin-ru-0592.webp", "Свадебная съёмка, кадр 33", 2400, 1600),
+  photo("wedding-34", "media/photography/wedding/thumb/slavagrebenkin-ru-0692.webp", "media/photography/wedding/full/slavagrebenkin-ru-0692.webp", "Свадебная съёмка, кадр 34", 1600, 2400),
+  photo("wedding-35", "media/photography/wedding/thumb/slavagrebenkin-ru-0710.webp", "media/photography/wedding/full/slavagrebenkin-ru-0710.webp", "Свадебная съёмка, кадр 35", 1600, 2400),
+  photo("wedding-36", "media/photography/wedding/thumb/slavagrebenkin-ru-0838.webp", "media/photography/wedding/full/slavagrebenkin-ru-0838.webp", "Свадебная съёмка, кадр 36", 2400, 1600),
+  photo("wedding-37", "media/photography/wedding/thumb/slavagrebenkin-ru-0920.webp", "media/photography/wedding/full/slavagrebenkin-ru-0920.webp", "Свадебная съёмка, кадр 37", 2400, 1600),
+  photo("wedding-38", "media/photography/wedding/thumb/slavagrebenkin-ru-0925.webp", "media/photography/wedding/full/slavagrebenkin-ru-0925.webp", "Свадебная съёмка, кадр 38", 2400, 1601),
+  photo("wedding-39", "media/photography/wedding/thumb/slavagrebenkin-ru-0926.webp", "media/photography/wedding/full/slavagrebenkin-ru-0926.webp", "Свадебная съёмка, кадр 39", 2400, 1601),
+  photo("wedding-40", "media/photography/wedding/thumb/slavagrebenkin-ru-0965.webp", "media/photography/wedding/full/slavagrebenkin-ru-0965.webp", "Свадебная съёмка, кадр 40", 1600, 2400),
+  photo("wedding-41", "media/photography/wedding/thumb/slavagrebenkin-ru-0969.webp", "media/photography/wedding/full/slavagrebenkin-ru-0969.webp", "Свадебная съёмка, кадр 41", 2400, 1600),
+  photo("wedding-42", "media/photography/wedding/thumb/slavagrebenkin-ru-0970.webp", "media/photography/wedding/full/slavagrebenkin-ru-0970.webp", "Свадебная съёмка, кадр 42", 2400, 1600),
+  photo("wedding-43", "media/photography/wedding/thumb/slavagrebenkin-ru-0987.webp", "media/photography/wedding/full/slavagrebenkin-ru-0987.webp", "Свадебная съёмка, кадр 43", 2400, 1600),
+  photo("wedding-44", "media/photography/wedding/thumb/slavagrebenkin-ru-0991.webp", "media/photography/wedding/full/slavagrebenkin-ru-0991.webp", "Свадебная съёмка, кадр 44", 1600, 2400),
+  photo("wedding-45", "media/photography/wedding/thumb/slavagrebenkin-ru-0998.webp", "media/photography/wedding/full/slavagrebenkin-ru-0998.webp", "Свадебная съёмка, кадр 45", 1600, 2400),
+] as const satisfies readonly PhotoItem[];
+
+const nhaTrangItems = [
+  photo("nha-trang-01", "media/photography/nha-trang/thumb/dscf0715.webp", "media/photography/nha-trang/full/dscf0715.webp", "Фотография из серии «Нячанг», кадр 01", 2400, 1600),
+  photo("nha-trang-02", "media/photography/nha-trang/thumb/dscf0851.webp", "media/photography/nha-trang/full/dscf0851.webp", "Фотография из серии «Нячанг», кадр 02", 2400, 1600),
+  photo("nha-trang-03", "media/photography/nha-trang/thumb/dscf1536.webp", "media/photography/nha-trang/full/dscf1536.webp", "Фотография из серии «Нячанг», кадр 03", 2400, 1600),
+  photo("nha-trang-04", "media/photography/nha-trang/thumb/dscf1602.webp", "media/photography/nha-trang/full/dscf1602.webp", "Фотография из серии «Нячанг», кадр 04", 1600, 2400),
+  photo("nha-trang-05", "media/photography/nha-trang/thumb/dscf1606.webp", "media/photography/nha-trang/full/dscf1606.webp", "Фотография из серии «Нячанг», кадр 05", 1600, 2400),
+  photo("nha-trang-06", "media/photography/nha-trang/thumb/dscf1652.webp", "media/photography/nha-trang/full/dscf1652.webp", "Фотография из серии «Нячанг», кадр 06", 1600, 2400),
+  photo("nha-trang-07", "media/photography/nha-trang/thumb/dscf3213.webp", "media/photography/nha-trang/full/dscf3213.webp", "Фотография из серии «Нячанг», кадр 07", 1351, 2400),
+  photo("nha-trang-08", "media/photography/nha-trang/thumb/dscf3260.webp", "media/photography/nha-trang/full/dscf3260.webp", "Фотография из серии «Нячанг», кадр 08", 1351, 2400),
+  photo("nha-trang-09", "media/photography/nha-trang/thumb/dscf3295.webp", "media/photography/nha-trang/full/dscf3295.webp", "Фотография из серии «Нячанг», кадр 09", 1351, 2400),
+  photo("nha-trang-10", "media/photography/nha-trang/thumb/dscf3350.webp", "media/photography/nha-trang/full/dscf3350.webp", "Фотография из серии «Нячанг», кадр 10", 1351, 2400),
+  photo("nha-trang-11", "media/photography/nha-trang/thumb/dscf3357.webp", "media/photography/nha-trang/full/dscf3357.webp", "Фотография из серии «Нячанг», кадр 11", 2400, 1351),
+  photo("nha-trang-12", "media/photography/nha-trang/thumb/dscf3367.webp", "media/photography/nha-trang/full/dscf3367.webp", "Фотография из серии «Нячанг», кадр 12", 1351, 2400),
+  photo("nha-trang-13", "media/photography/nha-trang/thumb/dscf3406.webp", "media/photography/nha-trang/full/dscf3406.webp", "Фотография из серии «Нячанг», кадр 13", 1351, 2400),
+  photo("nha-trang-14", "media/photography/nha-trang/thumb/dscf3530.webp", "media/photography/nha-trang/full/dscf3530.webp", "Фотография из серии «Нячанг», кадр 14", 1351, 2400),
+  photo("nha-trang-15", "media/photography/nha-trang/thumb/dscf3544.webp", "media/photography/nha-trang/full/dscf3544.webp", "Фотография из серии «Нячанг», кадр 15", 1600, 2400),
+  photo("nha-trang-16", "media/photography/nha-trang/thumb/dscf35592.webp", "media/photography/nha-trang/full/dscf35592.webp", "Фотография из серии «Нячанг», кадр 16", 2400, 1563),
+  photo("nha-trang-17", "media/photography/nha-trang/thumb/dscf4545.webp", "media/photography/nha-trang/full/dscf4545.webp", "Фотография из серии «Нячанг», кадр 17", 2400, 1600),
+  photo("nha-trang-18", "media/photography/nha-trang/thumb/dscf8143.webp", "media/photography/nha-trang/full/dscf8143.webp", "Фотография из серии «Нячанг», кадр 18", 2400, 1600),
+  photo("nha-trang-19", "media/photography/nha-trang/thumb/dscf8382.webp", "media/photography/nha-trang/full/dscf8382.webp", "Фотография из серии «Нячанг», кадр 19", 2400, 1600),
+  photo("nha-trang-20", "media/photography/nha-trang/thumb/dscf8417.webp", "media/photography/nha-trang/full/dscf8417.webp", "Фотография из серии «Нячанг», кадр 20", 2400, 1600),
+  photo("nha-trang-21", "media/photography/nha-trang/thumb/dscf8430.webp", "media/photography/nha-trang/full/dscf8430.webp", "Фотография из серии «Нячанг», кадр 21", 2400, 1600),
+  photo("nha-trang-22", "media/photography/nha-trang/thumb/dscf8445.webp", "media/photography/nha-trang/full/dscf8445.webp", "Фотография из серии «Нячанг», кадр 22", 1600, 2400),
+  photo("nha-trang-23", "media/photography/nha-trang/thumb/image-2026-10-25-11-48-55.webp", "media/photography/nha-trang/full/image-2026-10-25-11-48-55.webp", "Фотография из серии «Нячанг», кадр 23", 853, 1280),
+] as const satisfies readonly PhotoItem[];
 
 export const photographyCategories = [
   {
     id: 'studio',
     title: 'Студийная съёмка',
     cardImage: withBase('media/photography/cards/studio.webp'),
-    items: [],
+    items: studioItems,
   },
   {
     id: 'wedding',
     title: 'Свадебная съёмка',
     cardImage: withBase('media/photography/cards/wedding.webp'),
-    items: [],
+    items: weddingItems,
   },
   {
     id: 'product',
@@ -31,5 +145,11 @@ export const photographyCategories = [
     title: 'Концертная съёмка',
     cardImage: withBase('media/photography/cards/concert.webp'),
     items: [],
+  },
+  {
+    id: 'nha-trang',
+    title: 'Нячанг',
+    cardImage: nhaTrangItems[0].thumbnail,
+    items: nhaTrangItems,
   },
 ] as const satisfies readonly PhotoCategory[];

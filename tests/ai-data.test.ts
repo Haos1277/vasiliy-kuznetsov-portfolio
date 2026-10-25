@@ -41,10 +41,26 @@ const readWebpDimensions = (filePath: string): { width: number; height: number }
 };
 
 describe('AI portfolio data', () => {
-  it('keeps the unprovided AI galleries and videos truthfully empty', () => {
-    expect(aiPhotos).toEqual([]);
-    expect(aiPhotoCollection.items).toEqual([]);
+  it('publishes every supplied AI photograph with existing WebP assets', () => {
+    expect(aiPhotos).toHaveLength(17);
+    expect(aiPhotoCollection.items).toEqual(aiPhotos);
     expect(aiVideoWorks).toEqual([]);
+
+    for (const item of aiPhotos) {
+      const thumbnailPath = resolve(
+        projectRoot,
+        'public',
+        item.thumbnail.replace('/vasiliy-kuznetsov-portfolio/', ''),
+      );
+      const fullPath = resolve(
+        projectRoot,
+        'public',
+        item.full.replace('/vasiliy-kuznetsov-portfolio/', ''),
+      );
+      expect(existsSync(thumbnailPath)).toBe(true);
+      expect(existsSync(fullPath)).toBe(true);
+      expect(readWebpDimensions(fullPath)).toEqual({ width: item.width, height: item.height });
+    }
   });
 
   it('references two existing 4:5 AI mode-card assets through the base path', () => {

@@ -42,11 +42,11 @@ describe('AI creator page', () => {
     expect(document.querySelector('.portfolio-cta a')?.textContent?.trim()).toBe('Создать AI-проект');
   });
 
-  it('keeps its AI collection empty and makes the interim card path base-aware', async () => {
+  it('loads the supplied AI collection and keeps the card path base-aware', async () => {
     const { aiPhotoCollection, aiPhotos } = await import('../src/data/ai');
 
-    expect(aiPhotos).toEqual([]);
-    expect(aiPhotoCollection.items).toEqual([]);
+    expect(aiPhotos).toHaveLength(17);
+    expect(aiPhotoCollection.items).toEqual(aiPhotos);
     expect(aiPhotoCollection.cardImage).toBe('/vasiliy-kuznetsov-portfolio/media/ai-creator.webp');
   });
 });

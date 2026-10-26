@@ -50,12 +50,12 @@ describe('AI portfolio data', () => {
       const thumbnailPath = resolve(
         projectRoot,
         'public',
-        item.thumbnail.replace('/vasiliy-kuznetsov-portfolio/', ''),
+        item.thumbnail.replace(/^\//, ''),
       );
       const fullPath = resolve(
         projectRoot,
         'public',
-        item.full.replace('/vasiliy-kuznetsov-portfolio/', ''),
+        item.full.replace(/^\//, ''),
       );
       expect(existsSync(thumbnailPath)).toBe(true);
       expect(existsSync(fullPath)).toBe(true);
@@ -68,7 +68,7 @@ describe('AI portfolio data', () => {
     expect(cards).toHaveLength(2);
 
     for (const card of cards) {
-      const relativePath = card.replace('/vasiliy-kuznetsov-portfolio/', '');
+      const relativePath = card.replace(/^\//, '');
       const filePath = resolve(projectRoot, 'public', relativePath);
       expect(existsSync(filePath)).toBe(true);
 

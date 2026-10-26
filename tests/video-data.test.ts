@@ -5,12 +5,12 @@ import { describe, expect, it } from 'vitest';
 import { aiVideoWorks, videoWorks } from '../src/data/videos';
 
 const releaseBase =
-  'https://github.com/Haos1277/vasiliy-kuznetsov-portfolio/releases/download/portfolio-media-2026-10/';
+  'https://github.com/Haos1277/haos1277.github.io/releases/download/portfolio-media-2026-10/';
 
 const posterPath = (poster: string): string =>
   resolve(
     'public',
-    poster.replace('/vasiliy-kuznetsov-portfolio/', ''),
+    poster.replace(/^\//, ''),
   );
 
 describe('video portfolio data', () => {
@@ -28,7 +28,7 @@ describe('video portfolio data', () => {
     for (const work of works) {
       expect('src' in work ? work.src : undefined).toMatch(new RegExp(`^${releaseBase}`));
       expect(work.duration).toMatch(/^\d{2}:\d{2}$/);
-      expect(work.poster).toMatch(/^\/vasiliy-kuznetsov-portfolio\/media\//);
+      expect(work.poster).toMatch(/^\/media\//);
       expect(existsSync(posterPath(work.poster!))).toBe(true);
     }
   });

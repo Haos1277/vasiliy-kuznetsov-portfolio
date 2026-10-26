@@ -36,10 +36,10 @@ describe('portfolio page structure', () => {
 
     expect(portfolioLinks).toHaveLength(4);
     expect(portfolioLinks.map((link) => link.getAttribute('href'))).toEqual([
-      '/vasiliy-kuznetsov-portfolio/photography/',
-      '/vasiliy-kuznetsov-portfolio/video/',
-      '/vasiliy-kuznetsov-portfolio/ai/',
-      '/vasiliy-kuznetsov-portfolio/music/',
+      '/photography/',
+      '/video/',
+      '/ai/',
+      '/music/',
     ]);
     expect(portfolioLinks.every((link) => !link.matches(':disabled'))).toBe(true);
   });

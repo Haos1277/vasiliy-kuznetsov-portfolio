@@ -61,11 +61,11 @@ describe('photography data', () => {
 
   it('keeps media paths under the configured base and category folders', () => {
     expect(photographyCategories.map(({ cardImage }) => cardImage)).toEqual([
-      '/vasiliy-kuznetsov-portfolio/media/photography/cards/studio.webp',
-      '/vasiliy-kuznetsov-portfolio/media/photography/cards/wedding.webp',
-      '/vasiliy-kuznetsov-portfolio/media/photography/cards/product.webp',
-      '/vasiliy-kuznetsov-portfolio/media/photography/cards/concert.webp',
-      '/vasiliy-kuznetsov-portfolio/media/photography/nha-trang/thumb/dscf0715.webp',
+      '/media/photography/cards/studio.webp',
+      '/media/photography/cards/wedding.webp',
+      '/media/photography/cards/product.webp',
+      '/media/photography/cards/concert.webp',
+      '/media/photography/nha-trang/thumb/dscf0715.webp',
     ]);
 
     const categories: readonly PhotoCategory[] = photographyCategories;
@@ -76,12 +76,12 @@ describe('photography data', () => {
         const thumbnailPath = resolve(
           projectRoot,
           'public',
-          item.thumbnail.replace('/vasiliy-kuznetsov-portfolio/', ''),
+          item.thumbnail.replace(/^\//, ''),
         );
         const fullPath = resolve(
           projectRoot,
           'public',
-          item.full.replace('/vasiliy-kuznetsov-portfolio/', ''),
+          item.full.replace(/^\//, ''),
         );
         expect(existsSync(thumbnailPath)).toBe(true);
         expect(existsSync(fullPath)).toBe(true);

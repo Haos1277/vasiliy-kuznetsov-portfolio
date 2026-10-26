@@ -22,10 +22,10 @@ describe('AI creator page', () => {
     expect(document.querySelector('[data-ai-panel="video"]')?.hasAttribute('hidden')).toBe(true);
     expect(
       document.querySelector<HTMLImageElement>('[data-ai-mode="photos"] img')?.getAttribute('src'),
-    ).toBe('/vasiliy-kuznetsov-portfolio/media/ai/cards/photos.webp');
+    ).toBe('/media/ai/cards/photos.webp');
     expect(
       document.querySelector<HTMLImageElement>('[data-ai-mode="video"] img')?.getAttribute('src'),
-    ).toBe('/vasiliy-kuznetsov-portfolio/media/ai/cards/video.webp');
+    ).toBe('/media/ai/cards/video.webp');
     expect(document.querySelector('[data-gallery-empty]')?.textContent).toContain(
       'Фотографии этой категории появятся здесь после подготовки материалов.',
     );
@@ -46,6 +46,6 @@ describe('AI creator page', () => {
 
     expect(aiPhotos).toHaveLength(17);
     expect(aiPhotoCollection.items).toEqual(aiPhotos);
-    expect(aiPhotoCollection.cardImage).toBe('/vasiliy-kuznetsov-portfolio/media/ai-creator.webp');
+    expect(aiPhotoCollection.cardImage).toBe('/media/ai-creator.webp');
   });
 });

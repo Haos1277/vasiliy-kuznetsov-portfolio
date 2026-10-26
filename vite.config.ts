@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
-  base: '/vasiliy-kuznetsov-portfolio/',
+  base: '/',
   build: {
     target: 'es2022',
     rollupOptions: {
@@ -21,7 +21,7 @@ export default defineConfig({
     environment: 'jsdom',
     clearMocks: true,
     env: {
-      BASE_URL: '/vasiliy-kuznetsov-portfolio/',
+      BASE_URL: '/',
     },
   },
 });

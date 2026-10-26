@@ -4,13 +4,9 @@ import { resolve } from 'node:path';
 import { portfolioHref, withBase } from '../src/lib/paths';
 
 describe('portfolio paths', () => {
-  it('keeps assets and pages under the configured base path', () => {
-    expect(withBase('media/photo.webp')).toBe(
-      '/vasiliy-kuznetsov-portfolio/media/photo.webp',
-    );
-    expect(portfolioHref('photography')).toBe(
-      '/vasiliy-kuznetsov-portfolio/photography/',
-    );
+  it('serves assets and pages from the GitHub user-site root', () => {
+    expect(withBase('media/photo.webp')).toBe('/media/photo.webp');
+    expect(portfolioHref('photography')).toBe('/photography/');
   });
 
   it('keeps route favicons under the configured base path', async () => {
